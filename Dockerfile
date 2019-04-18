@@ -66,12 +66,12 @@ COPY src/acpype /home/REMD/src/
   # Download from RPBS OwnCloud
 RUN wget https://owncloud.rpbs.univ-paris-diderot.fr:443/owncloud/index.php/s/5yoyGkC9bbadNJ0/download && mv download amber18.tar.gz
 
-RUN tar -xzfv amber18.tar
+RUN tar -xzfv amber18.tar.gz
 COPY scripts/install_amber.sh ./
 RUN chmod 744 install_amber.sh
 #RUN ./install_amber.sh
 
-RUN rm amber18.tar
+RUN rm amber18.tar.gz
 
 ################################################################################
 
