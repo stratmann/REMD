@@ -48,24 +48,26 @@ RUN echo "set hlsearch" >> /root/.vimrc
 
 # Install GROMACS (version ???)
 
-COPY install_gromacs.sh ./
+COPY scripts/install_gromacs.sh ./
 
 RUN chmod 744 install_gromacs.sh
 RUN mkdir -p /home/REMD
 RUN mkdir -p /home/REMD/src /home/REMD/data /home/REMD/output
 
-COPY lunch_REMD.py /home/REMD/src/
-COPY *.mdp /home/REMD/src/
-COPY ./acpype /home/REMD/src/
+COPY scripts/lunch_REMD.py /home/REMD/src/
+COPY parameters/*.mdp /home/REMD/src/
+COPY src/acpype /home/REMD/src/
 #RUN ./install_gromacs.sh
 
 ################################################################################
 
 # Install AmberTools (version ???)
 
-COPY ./amber18.tar ./
-RUN tar xfv amber18.tar
-COPY install_amber.sh ./
+  # Download from RPBS OwnCloud
+RUN wget https://owncloud.rpbs.univ-paris-diderot.fr:443/owncloud/index.php/s/5yoyGkC9bbadNJ0/download && mv download amber18.tar.gz
+
+RUN tar -xzfv amber18.tar
+COPY scripts/install_amber.sh ./
 RUN chmod 744 install_amber.sh
 #RUN ./install_amber.sh
 
