@@ -1,0 +1,61 @@
+;Run parameters
+integrator = md ; leap-frog integrator
+nsteps = 100000000 ; * 0.001 = 2400000 ps, 2000 ns
+dt = 0.002 ; 1 fs
+; Output control
+nstxout = 15000000; save coordinates every 100 ps
+nstvout = 15000000; save velocities every 100 ps
+nstxtcout = 5000 ; xtc compressed trajectory
+    ; output every 10 ps
+nstenergy = 5000 ; save energies every 10 ps
+nstlog = 10000 ; update log file every 10 ps
+; Bond parameters
+comm_mode = ANGULAR
+  ; Grompp note : Tumbling and or
+  ; flying ice-cubes: We are not
+  ; removing rotation around
+  ;center of mass in a non-periodic
+  ; system. You should probably
+  ; set comm_mode = ANGULAR.
+continuation  = yes ; grompp note :For a correct
+    ; single-point energy evaluation
+    ; with nsteps = 0, use
+constraints = all-bonds ; (even heavy atom-H bonds)
+    ; constrained
+
+lincs_iter= 1 ; accuracy of LINCS
+lincs_order = 4 ; also related to accuracy
+
+cutoff-scheme = group ; Implicit solvent not yet
+;supported with Verlet lists
+ns_type = simple
+nstlist = 0
+rlist = 0.0 ; short-range neighborlist
+;cutoff (in nm)
+rcoulomb = 0.0
+;cutoff (in nm)
+rvdw = 0.0
+
+; Temperature coupling is on
+tcoupl = V-rescale ; modified Berendsen thermostat
+tc-grps = Protein ; two coupling groups
+    ; - more accurate
+tau_t = 0.1 ; time constant, in ps
+ref_t = 300 ; reference temperature, one for each
+    ; group, in K
+; Pressure coupling is on
+pcoupl= no   ; No pressure coupling on in NVT
+; Periodic boundary conditions
+pbc= no ;
+; Velocity generation
+gen_vel = no; Velocity generation is off
+; Implicite Solvent
+implicit-solvent = GBSA
+gb-algorithm = OBC  ; Onufriev-Cramer-Truhlar method
+    ; to calculate the Born radii
+rgbradii  = 0.0 ; Should be equal to rlist
+sa_surface_tension = 2.25936 ; grompp note : Value of
+    ;sa_surface_tension is < 0.
+    ;Changing it to 2.05016 or 2.25936
+    ;kJ/nm^2/mol for Still and HCT/OBC respectively
+

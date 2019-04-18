@@ -1,0 +1,32 @@
+; minim.mdp - used as input into grompp to generate em.tpr
+; Parameters describing what to do, when to stop and what to save
+integrator = cg ; Algorithm (cg = conjugate gradient minimization)
+emstep	= 0.01 	; Energy step size [nm]
+emtol	= 10	; Convergence criterion (maximal force is
+	;smaller than this value (kJ/mol/nm)
+nstcgsteep	= 500	; frequency of performing 1 steepest descent
+		;step while doing conjugate gradient energy
+		;minimization.
+nsteps	= 50000	; Maximum number of (minimization) steps
+	;to perform
+nstxout	= 10	; write results every nstxout steps
+; Parameters describing how to find the neighbors of each atom
+;and how to calculate the interactions
+nstlist	= 0	; Frequency to update the neighbor list
+		; and long range forces
+ns_type	= simple ; Method to determine neighbor list
+	; (simple, grid)
+rlist	= 0.0	; Cut-off for making neighbor list
+		; (short range forces)
+coulombtype = cut-off
+rcoulomb = 0.0 ; Short-range electrostatic cut-off
+rvdw = 0.0 ; Short-range Van der Waals cut-off
+pbc = no	; Periodic Boundary Conditions (yes/no)
+vdw-type = cut-off
+cutoff-scheme	= group	; Implicit solvent is not yet
+	; supported by Verlet lists.
+implicit_solvent = GBSA
+rgbradii = 0.0
+gb_algorithm = OBC
+gb_epsilon_solvent = 78.3
+sa_surface_tension = 2.25936
