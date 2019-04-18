@@ -1,0 +1,15 @@
+#lit le fichier Dockerfile
+sudo docker build -t remd:remd_engine .
+#Voir les images créées
+sudo docker image ls
+#gromacs             grotest             e0d86536f16d        4 minutes ago       148MB
+
+#Entrz dans l'image
+sudo docker run -it e0d86536f16d bash
+supprimer l'image
+sudo docker image rm e0d86536f16d acb43a636d45 d96c78409b80 4abffdcf762e
+#supprimez toutes les images
+sudo docker system prune --volumes
+
+Copying files from host to Docker container
+docker cp foo.txt mycontainer:/foo.txt
