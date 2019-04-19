@@ -1,4 +1,4 @@
 # REMD
 
-## Replica Exchange Molecular Dynamics (REMD) protocol
 
+## Automated Replica Exchange Molecular Dynamics (REMD) protocol
