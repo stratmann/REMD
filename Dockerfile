@@ -46,7 +46,7 @@ RUN echo "set hlsearch" >> /root/.vimrc
 
 ################################################################################
 
-# Install GROMACS (version ???)
+# Install GROMACS (version 5.1.2)
 
 COPY scripts/install_gromacs.sh ./
 
@@ -61,7 +61,7 @@ COPY src/acpype /home/REMD/src/
 
 ################################################################################
 
-# Install AmberTools (version ???)
+# Install AmberTools (version 18)
 
   # Download from RPBS OwnCloud
 RUN wget https://owncloud.rpbs.univ-paris-diderot.fr:443/owncloud/index.php/s/5yoyGkC9bbadNJ0/download && mv download amber18.tar.gz
