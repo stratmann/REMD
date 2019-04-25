@@ -8,11 +8,16 @@ import re
 from CyclicPeptide import *
 from MakeTopology import *
 
-gmx="/commun/gromacs/512/bin/gmx"
+gmx="/usr/local/gromacs/bin/gmx_mpi"
 #path for the force field
-leap="/home/jaysen/amber14/dat/leap/cmd/oldff/leaprc.ff96"
-acpype="/bigdata/jaysen/Rapport_MAUD/Scripts/acpype/acpype.py"
-scwrl="/bigdata/jaysen/these/github/Docker/REMD/src/scwrl3_lin/./scwrl3"
+leap="/amber18/dat/leap/cmd/oldff/leaprc.ff96"
+acpype="/home/REMD/src/acpype.py"
+
+#gmx="/commun/gromacs/512/bin/gmx"
+#path for the force field
+#leap="/home/jaysen/amber14/dat/leap/cmd/oldff/leaprc.ff96"
+#acpype="/bigdata/jaysen/Rapport_MAUD/Scripts/acpype/acpype.py"
+#scwrl="/bigdata/jaysen/these/github/Docker/REMD/src/scwrl3_lin/./scwrl3"
 
 
 parser = argparse.ArgumentParser(description='topology fie (GRO,PDB)')
