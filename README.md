@@ -21,7 +21,7 @@ along with this program.
 
 ##                               Principle
 
-The script is a automated Replica Exchange Molecular Dynamics protocol.
+The script is an automated Replica Exchange Molecular Dynamics protocol.
 
 
 
