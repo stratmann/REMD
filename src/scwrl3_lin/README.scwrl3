@@ -1,0 +1,122 @@
+//////////////////////////////////////////////////
+                 SCWRL3.0 README 
+//////////////////////////////////////////////////
+
+This file describes the installation procedure and provides a quick
+reference guide for
+
+SCWRL3.0 copyright (c) 2003 Adrian A. Canutescu and Roland L. Dunbrack Jr.
+Fox Chase Cancer Center
+Philadelphia, PA, USA
+
+and it was created on July 1, 2003.
+
+CONTACTS
+========
+Questions or problems about installation or use, please contact the authors:
+
+Adrian Canutescu  Adrian.Canutescu@fccc.edu
+Roland Dunbrack   Roland.Dunbrack@fccc.edu
+
+INSTALLATION
+============
+
+SCWRL3.0 is provided in binary form for the following operating systems:
+- Windows 9x/Me/2000/XP
+- Linux
+- MacOS X
+
+and the installation kits for each operating system have the following
+names, respectively:
+
+- scwrl3_win.zip
+- scwrl3_lin.tar.gz
+- scwrl3_mac.tar.gz
+
+After you download the installation kit appropriate for your operating
+system, you should create a directory and uncompress it:
+
+- for Windows, you have to use WinZip
+- for Linux / MacOS X you have to:
+      1.) gzip -d scwrl3_lin.tar.gz or gzip -d scwrl3_mac.tar.gz
+      2.) tar -xf scwrl3_lin.tar or tar -xf scwrl3_mac.tar
+
+The previous step will generate 4 files:
+- BBDep.bin
+- setup (setup.exe for Windows)
+- scwrl3_
+- README (this file)
+
+The final installation step is to run setup (setup.exe for Windows)
+from the directory in which you uncompressed the kit. 
+Simply type
+
+   ./setup
+
+to the Linux shell or MacOS X terminal window, or
+
+    setup.exe
+
+to the command window for Windows.
+
+Running setup will generate an executable file "scwrl3" ("scwrl3.exe"
+for Windows) and will also hardcode the path toward the backbone-
+dependent rotamer library (BBDep.bin). After this, you can move the
+scwrl3 executable to a different location, or create symbolic links or
+aliases for it, provided that you keep the backbone-dependent rotamer
+library in the directory where you performed the installation. If you
+decide to move the backbone-dependent rotamer library to a different
+location, you have to repeat the installation procedure for that
+director, beginning with uncompressing the kit.
+
+QUICK REFERENCE
+===============
+
+Usage: scwrl3 -i <input_file> -o <output_file>  > logfile
+
+Options:
+-u disables the disulfide bonds identification
+-s <sequence_file> loads a sequence file
+-f <frame_file> loads a frame file
+-d prints dihedral angles to a file called <output_file.dihed>
+
+-i <input_file> [required]
+The main input file to scwrl should be a protein backbone, with or
+without sidechains, cofactors, or solvent. Residues with incomplete
+backbones are treated as glycines. Residues with names that do not
+match the standard 20 amino acid names are also treated as
+glycines. The sequence of residues is read from the first atom in each
+residue.  If you wish to change this sequence, the -s flag allows you
+to enter a new sequence independently.
+
+-o <output_file> [required]
+The output file contains the identical backbone as the input file,
+with predicted coordinates for the sidechains.
+
+-f <frame_file> [optional] 
+This file is used to add additional steric boundaries to the
+sidechains. It should be in pdb format, and might contain cofactors or
+metal atoms, lipid molecules, or another protein.  In any case, it is
+held fixed and used only for steric clash checks.Radii were determined
+from atom-atom distances in the PDB.  All elements currently observed
+in the PDB can be treated by scwrl.
+
+-s <sequence_file> [optional]
+
+This flag is followed by a sequence file.  The sequence should have
+the same number of residues in it as the input backbone. White space,
+carriage returns, and numbers are ignored. Lower-case letters in the
+sequence indicate that the Cartesian coordinates for the corresponding
+residues are to be left untouched, and will be treated as steric
+boundaries only for the other side chains.
+
+Examples:
+SDERYCNM - full SCWRL side-chain replacement
+SdERYCNM - input residue (aspartate) is left where as is.
+SxERYCNM - input residue (aspartate) is left where as is.
+
+-u [optional]
+Disulfides will not be calculated
+
+-d [optional]
+Specifies dihedral angles to be printed to a file <output_file.dihed>
