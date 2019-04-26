@@ -32,6 +32,8 @@ argparse
 subprocess
 sys
 re
+math
+mdtraj
 ```
 By default, the user can provide a sequence file, the script will create a reference structure (PDB file)
 and a topology file. 
