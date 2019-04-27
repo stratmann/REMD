@@ -16,7 +16,8 @@ RUN apt-get update && \
        libbz2-dev \
        openmpi-bin \
        cmake=3.5.1-1ubuntu3 \
-       libopenmpi-dev
+       libopenmpi-dev \
+       python-pip
 
 
 
@@ -66,14 +67,21 @@ RUN mkdir -p /home/REMD/data /home/REMD/output/
 RUN mkdir -p /home/REMD/src/lunch_REMD/
 RUN mkdir -p /home/REMD/src/acpype/
 RUN mkdir -p /home/REMD/src/scripts/
-RUN mkdir -p /home/REMD/src/scwrl3_lin
+
 
 
 
 COPY ./scripts/lunch_REMD/*.py /home/REMD/src/lunch_REMD/
 COPY ./parameters/*.mdp /home/REMD/src/
 COPY ./src/acpype/* /home/REMD/src/acpype/
+RUN chmod 744 /home/REMD/src/acpype/acpype.py
+COPY ./src/scwrl3_lin.tar.gz /home/REMD/src/
+RUN tar -zxvf /home/REMD/src/scwrl3_lin.tar.gz -C /home/REMD/src/
+COPY ./src/BackboneReference /home/REMD/src/scwrl3_lin
+RUN /home/REMD/src/scwrl3_lin/./setup
 #RUN ./install_gromacs.sh
+#RUN apt-get install python-pip
+#RUN pip install mdtraj
 
 ################################################################################
 
