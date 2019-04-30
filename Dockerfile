@@ -60,16 +60,26 @@ RUN echo "set hlsearch" >> /root/.vimrc
 
 # Install GROMACS (version 5.1.2)
 
-COPY scripts/install_gromacs.sh ./
 
-RUN chmod 744 install_gromacs.sh
+RUN apt-get install build-essential cmake wget openssh-server -y
+RUN wget ftp://ftp.gromacs.org/pub/gromacs/gromacs-5.1.2.tar.gz
+RUN tar zxvf gromacs-5.1.2.tar.gz -C ./
+WORKDIR gromacs-5.1.2
+RUN mkdir ./build
+WORKDIR build
+RUN cmake .. -DGMX_BUILD_OWN_FFTW=ON -DGMX_MPI=on
+RUN make
+RUN make install
+WORKDIR /
+
+
 RUN mkdir -p /home/REMD/data /home/REMD/output/
 RUN mkdir -p /home/REMD/src/lunch_REMD/
 RUN mkdir -p /home/REMD/src/acpype/
 RUN mkdir -p /home/REMD/src/scripts/
 
-
-
+COPY ./data/seq.txt /home/REMD/data/seq-example.txt
+COPY ./data/RGDpV.pdb /home/REMD/data/RGDpV.pdb
 
 COPY ./scripts/lunch_REMD/*.py /home/REMD/src/lunch_REMD/
 COPY ./parameters/*.mdp /home/REMD/src/
@@ -78,10 +88,9 @@ RUN chmod 744 /home/REMD/src/acpype/acpype.py
 COPY ./src/scwrl3_lin.tar.gz /home/REMD/src/
 RUN tar -zxvf /home/REMD/src/scwrl3_lin.tar.gz -C /home/REMD/src/
 COPY ./src/BackboneReference /home/REMD/src/scwrl3_lin
-RUN /home/REMD/src/scwrl3_lin/./setup
-#RUN ./install_gromacs.sh
-#RUN apt-get install python-pip
-#RUN pip install mdtraj
+WORKDIR /home/REMD/src/scwrl3_lin/
+RUN ./setup
+WORKDIR /
 
 ################################################################################
 
@@ -90,13 +99,20 @@ RUN /home/REMD/src/scwrl3_lin/./setup
   # Download from RPBS OwnCloud
 RUN wget https://owncloud.rpbs.univ-paris-diderot.fr:443/owncloud/index.php/s/5yoyGkC9bbadNJ0/download && mv download amber18.tar.gz
 
-#RUN tar -xzfv amber18.tar.gz
-COPY scripts/install_amber.sh ./
-RUN chmod 744 install_amber.sh
+RUN tar -zxvf amber18.tar.gz -C /
+WORKDIR /amber18
+RUN export AMBERHOME=`pwd`
+#######A automatiser ces lignes de commandes########
+#RUN ./configure gnu
+#RUN source amber.sh
+#RUN make install
+#RUN echo "source $AMBERHOME/amber.sh" >> ~/.bashrc 
+
+#RUN chmod 744 install_amber.sh
 #RUN ./install_amber.sh
 
 #RUN rm amber18.tar.gz
-
+WORKDIR /home/REMD/
 ################################################################################
 
 # Cleanup
