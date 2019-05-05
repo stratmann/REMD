@@ -103,15 +103,15 @@ RUN tar -zxvf amber18.tar.gz -C /
 WORKDIR /amber18
 RUN export AMBERHOME=`pwd`
 #######A automatiser ces lignes de commandes########
-#RUN ./configure gnu
-#RUN source amber.sh
-#RUN make install
-#RUN echo "source $AMBERHOME/amber.sh" >> ~/.bashrc 
+RUN yes | ./configure gnu
+RUN source amber.sh
+RUN make install
+RUN echo "source $AMBERHOME/amber.sh" >> ~/.bashrc 
 
 #RUN chmod 744 install_amber.sh
 #RUN ./install_amber.sh
 
-#RUN rm amber18.tar.gz
+RUN rm amber18.tar.gz
 WORKDIR /home/REMD/
 ################################################################################
 
