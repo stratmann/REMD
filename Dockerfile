@@ -37,14 +37,6 @@ RUN apt-get remove -qy vim-tiny && \
       bash-completion \
       wget
 
-#install cmake
-#RUN  wget http://www.cmake.org/files/v3.0/cmake-3.0.2.tar.gz
-#RUN tar xzf cmake-3.0.2.tar.gz
-#RUN cd cmake-3.0.2
-#RUN ./configure --prefix=/opt/cmake
-#RUN make
-#RUN make install
-
 # Extend bash history
 RUN sed -i 's/HISTSIZE\=1000/HISTSIZE\=1000000/' /root/.bashrc && sed -i 's/HISTFILESIZE\=2000/HISTFILESIZE\=2000000/' /root/.bashrc
 # Modify .bashrc for (improved) autocompletion
@@ -89,8 +81,11 @@ COPY ./src/scwrl3_lin.tar.gz /home/REMD/src/
 RUN tar -zxvf /home/REMD/src/scwrl3_lin.tar.gz -C /home/REMD/src/
 COPY ./src/BackboneReference /home/REMD/src/scwrl3_lin
 WORKDIR /home/REMD/src/scwrl3_lin/
-RUN ./setup
+#RUN ./setup
 WORKDIR /
+
+
+
 
 ################################################################################
 
@@ -104,15 +99,23 @@ WORKDIR /amber18
 RUN export AMBERHOME=`pwd`
 #######A automatiser ces lignes de commandes########
 RUN yes | ./configure gnu
-RUN source amber.sh
+RUN /bin/bash -c "source /amber18/amber.sh"
 RUN make install
 RUN echo "source $AMBERHOME/amber.sh" >> ~/.bashrc 
 
 #RUN chmod 744 install_amber.sh
-#RUN ./install_amber.sh
 
-RUN rm amber18.tar.gz
+RUN rm /amber18.tar.gz
 WORKDIR /home/REMD/
+
+################################################################################
+
+
+#Install mdtraj pyemma
+#Une fois que ambertools a été installé
+#RUN /amber18/miniconda/bin/conda install -c omnia mdtraj pyemma -y
+
+
 ################################################################################
 
 # Cleanup
