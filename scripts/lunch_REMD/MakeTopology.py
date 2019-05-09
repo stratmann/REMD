@@ -5,6 +5,7 @@ import argparse
 from subprocess import Popen, PIPE
 import sys
 import re
+import time
 
 RgFlagCat = re.compile('^\[ [a-z]+ \]')
 RgFlagDefault = re.compile('\[ defaults \]')
@@ -14,7 +15,6 @@ RgFlagAtomType = re.compile('\[ atomtypes \]')
 def ReadTopFile(Filename) :
     """
     Read a gromacs top file and add or delete informations.
-    FROM MAUD jusot
     """
     Flag = 0
     newFile = ''
@@ -35,16 +35,15 @@ def ReadTopFile(Filename) :
     return newFile
 
 
-def WriteNewFile(Filename, newFile, forceField="96") :
-	"""
-	Write a new file readable for gromacs.
-	From MAUD jusot
-	"""
-	with open(Filename.replace(".top", "_corrected.top"),'w') as filout :
-		filout.write(';force field\n#include "amber')
-		filout.write(str(forceField))
-		filout.write('.ff/forcefield.itp"\n\n')
-		filout.write(newFile)
+def WriteNewFile(Filename, newFile, forceField=96) :
+    """
+    Write a new file readable for gromacs.
+    """
+    with open(Filename.replace(".top", "_corrected.top"),'w') as filout :
+        filout.write(';force field\n#include "amber')
+        filout.write(str(forceField))
+        filout.write('.ff/forcefield.itp"\n\n')
+        filout.write(newFile)
 
 
 def Regex4topol(line, topfile):
@@ -59,19 +58,22 @@ def Regex4topol(line, topfile):
     if line.split(";")[1].split()[0][0] == "N":
         #Modifiy initial order of N-    CA-     C-     O to CA-     N-     C-     O
         newline = '{0:>6} {1:>6} {2:>6} {3:>6}'.format(AtomID["CA-"], AtomID["N-"], AtomID["C-"],AtomID["O"])
+        newline = newline+line[27:60]+"    CA-     N-     C-     O "
     elif line.split(";")[1].split()[0][0] == "H":
         #Modifiy initial order of H-     N-     C-    CA to C-    CA     N-     H
         newline = '{0:>6} {1:>6} {2:>6} {3:>6}'.format(AtomID["C-"], AtomID["CA"], AtomID["N-"],AtomID["H-"])
+        newline =newline+line[27:60]+"     C-    CA      N-     H "
     else:
         print "Regex not found !\nPlease send a email with your PDB file"
-        print line
+        #print line
         sys.exit(0)
-    newline = newline+line[27:]
+    #newline = newline+line[27:]
+    print newline
     cmd = "sed -i \"s/"+line[:-1]+"/"+newline[:-1]+"/\" "+topfile
     Popen(cmd, shell=True).wait()
 
 
-def CorrectDihedral(topfile):
+def CorrectDihedral(topfile1):
     """
     Amber define a wrong improper dihedral (the fisrt one)
     The function modify topology file to correct it
@@ -80,32 +82,34 @@ def CorrectDihedral(topfile):
     """
     flag = False
     cpt = 0
-    with open(topfile, "r") as filin:
-        for line in filin:
-            if line[:-1] == "[ dihedrals ] ; impropers":
+    with open(topfile1, "r") as filin1:
+        for line1 in filin1:
+            if line1[:-1] == "[ dihedrals ] ; impropers":
                 flag = True
                 continue
-            elif flag is True and line[0] == ";":
+            elif flag is True and line1[0] == ";":
                 continue
-            elif flag is True and line[0] != ";":
-                print line
-                tmp = line
+            elif flag is True and line1[0] != ";":
+                tmp = line1
                 cpt += 1
-                Regex4topol(line, topfile)
+                Regex4topol(line1, topfile1)
+                print line1
                 if cpt > 1:
                     flag = False
+
+
 
 def CorrectFirstRes(groFile):
     with open(groFile, "r") as file:
         for line in file:
-            #print line
             if len(line.split()) != 7:
                 continue
             else:
                 if line.split()[1] == "PRO":
-                    #first amino acid is a proline, no need to correct topology file
+                    print "first amino acid is a proline, no need to correct topology file"
                     return False
                 else:
+                    print "Improper dihedral correction"
                     return True
 
 def makeTopology(structure, peptide, gmx, tleap, acpype, forcefield):
@@ -157,7 +161,7 @@ def makeTopology(structure, peptide, gmx, tleap, acpype, forcefield):
         WriteNewFile("pept_amber_GMX.top", NewFile)
         Popen("rm ./pept_amber.inpcrd ./pept_amber.prmtop ./pept_amber_GMX.top", shell=True).wait()
         if CorrectFirstRes("pept_amber_GMX.gro"):
-            CorrectDihedral(NewFile)
+            CorrectDihedral("pept_amber_GMX_corrected.top")
         Popen("mv pept_amber_GMX.gro peptide.gro", shell=True).wait()
         Popen("mv pept_amber_GMX_corrected.top peptide.top", shell=True).wait()
     return "peptide.gro", "peptide.top"
@@ -166,19 +170,25 @@ def makeTopology(structure, peptide, gmx, tleap, acpype, forcefield):
 
 if __name__ == '__main__':
     #path for gromacs
-    gmx="/usr/local/gromacs/bin/gmx_mpi"
+    #gmx="/usr/local/gromacs/bin/gmx_mpi"
     #path for the force field
-    leap="/amber18/dat/leap/cmd/oldff/leaprc.ff96"
-    acpype="/home/REMD/src/acpype.py"
+    #leap="/amber18/dat/leap/cmd/oldff/leaprc.ff96"
+    #acpype="/home/MM_PBSA/src/acpype/acpype.py"
+    #path for gromacs
+    gmx="/commun/gromacs/512/bin/gmx"
+    #path for the force field
+    leap="/home/jaysen/amber14/dat/leap/cmd/oldff/leaprc.ff96"
+    acpype="/bigdata/jaysen/Rapport_MAUD/Scripts/acpype/acpype.py"
     parser = argparse.ArgumentParser(description='topology fie (GRO,PDB)')
     parser.add_argument('-g', action="store", dest="g", type=str, help="pdb file", default= None)
     parser.add_argument('-cyclic', action="store", dest="cyclic",default=False, type=bool, help="flag for cyclic peptide")
     parser.add_argument('-o', action="store", dest="o", type=str, default = "./",\
     help="output path filename ")
+    parser.add_argument('-ff', action="store", dest="ff",default="amber96", type=str, help="force field use")
     arg = parser.parse_args()
     pdb = arg.g
 
     if pdb[-3:] != "pdb":
         print "please provide a PDB file"
         sys.exit(0)
-    pdb, topology = MakeTopology(pdb, arg.cyclic, gmx, leap, acpype, "amber96")
+    pdb, topology = makeTopology(pdb, arg.cyclic, gmx, leap, acpype, "amber96")
