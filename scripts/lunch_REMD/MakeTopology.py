@@ -191,4 +191,4 @@ if __name__ == '__main__':
     if pdb[-3:] != "pdb":
         print "please provide a PDB file"
         sys.exit(0)
-    pdb, topology = makeTopology(pdb, arg.cyclic, gmx, leap, acpype, "amber96")
+    pdb, topology = makeTopology(pdb, arg.cyclic, gmx, leap, acpype, arg.ff)
