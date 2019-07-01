@@ -5,29 +5,27 @@ import argparse
 from subprocess import Popen, PIPE
 import sys
 import re
-import mdtraj as md
 from CyclicPeptide import *
 from MakeTopology import *
 
-gmx="/commun/gromacs/512/bin/gmx"
-#path for the force field
-leap="/home/jaysen/amber14/dat/leap/cmd/oldff/leaprc.ff96"
-acpype="/bigdata/jaysen/Rapport_MAUD/Scripts/acpype/acpype.py"
-scwrl="/bigdata/jaysen/these/github/Docker/REMD/src/scwrl3_lin/./scwrl3"
-
-
-gmx="/gromacs-5.1.2/build/bin/gmx"
+gmx="/usr/local/gromacs/bin/gmx_mpi"
 #path for the force field
 leap="/amber18/dat/leap/cmd/oldff/leaprc.ff96"
-acpype="/home/REMD/src/acpype/acpype.py"
-scwrl="/home/REMD/src/scwrl3_lin/./scwrl3"
+acpype="/home/REMD/src/acpype.py"
+scwrl="/home/REMD/src/scwrl3_lin/./scwrl3
+
+#gmx="/commun/gromacs/512/bin/gmx"
+#path for the force field
+#leap="/home/jaysen/amber14/dat/leap/cmd/oldff/leaprc.ff96"
+#acpype="/bigdata/jaysen/Rapport_MAUD/Scripts/acpype/acpype.py"
+#scwrl="/bigdata/jaysen/these/github/Docker/REMD/src/scwrl3_lin/./scwrl3"
 
 
 parser = argparse.ArgumentParser(description='topology fie (GRO,PDB)')
 parser.add_argument('-g', action="store", dest="g", type=str, help="pdb file")
 parser.add_argument('-p', action="store", dest="p", type=str, default = None, help="topology file")
 parser.add_argument('-cyclic', action="store", dest="cyclic",default=False, type=bool, help="flag for cyclic peptide")
-parser.add_argument('-temperature', action="store", dest="temp",default=None, type=str, help="\"300 318 337.97 358.81 380.85 404.27 429.12 455.50\"")
+parser.add_argument('-temperature', action="store", dest="temp",default=None, type=str, help="\"300 313 329 347 367 391 418 450\"")
 parser.add_argument('-time', action="store", dest="time",default=200000, type=int, help="Time simulation (ps)")
 parser.add_argument('-log', action="store", dest="log", type=str,\
  default = "clust.log", help="log file's name: default clust.log")
@@ -82,10 +80,6 @@ for i in xrange(len(refTemp)):
 
 Popen("cp ./mini2/Equil_* ./REMD", shell=True).wait()
 Popen("cp ./mini2/"+topology+" ./REMD", shell=True).wait()
-print "Phi angle for each residue"
-print mdtraj.compute_phi("./mini2/Equil_")[1]*180/np.pi
-print "Psi angle for each residue"
-print mdtraj.compute_psi("./mini2/Equil_")[1]*180/np.pi
 
 print "Time simulation given by the user {0}".format(arg.time)
 Popen("sed -i \"s|nsteps = 100000000 .*|nsteps = "+str(arg.time*500)+" ;|\" ./REMD/md_good.mdp", shell=True).wait()

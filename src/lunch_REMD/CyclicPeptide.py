@@ -6,11 +6,6 @@ import os
 import glob
 from subprocess import Popen, PIPE
 
-#########################################################
-#       Function to create peptide's structure file     #
-#   Work as well for cyclic peptide and regular peptide #
-#########################################################
-
 
 code = {'ALA': 'A', 'ARG': 'R', 'ASN': 'N', 'ASP': 'D', 'CYS': 'C', 'GLN': 'Q',
         'GLU': 'E', 'GLY': 'G', 'HIS': 'H', 'ILE': 'I', 'LEU': 'L', 'LYS': 'K',
