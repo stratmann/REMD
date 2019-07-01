@@ -11,8 +11,8 @@ from MakeTopology import *
 gmx="/usr/local/gromacs/bin/gmx_mpi"
 #path for the force field
 leap="/amber18/dat/leap/cmd/oldff/leaprc.ff96"
-acpype="/home/REMD/src/acpype.py"
-scwrl="/home/REMD/src/scwrl3_lin/./scwrl3
+acpype="/home/REMD/src/acpype/acpype.py"
+scwrl="/home/REMD/src/scwrl3_lin/./scwrl3"
 
 #gmx="/commun/gromacs/512/bin/gmx"
 #path for the force field

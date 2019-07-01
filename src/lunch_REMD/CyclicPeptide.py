@@ -5,6 +5,8 @@ import argparse
 import os
 import glob
 from subprocess import Popen, PIPE
+import sys
+import shutil
 
 
 code = {'ALA': 'A', 'ARG': 'R', 'ASN': 'N', 'ASP': 'D', 'CYS': 'C', 'GLN': 'Q',
@@ -14,8 +16,9 @@ code = {'ALA': 'A', 'ARG': 'R', 'ASN': 'N', 'ASP': 'D', 'CYS': 'C', 'GLN': 'Q',
 
 
 def parseSeq(fichier):
-    if not os.path.exists('./seqLibrary'):
-        os.makedirs('./seqLibrary')
+    if os.path.exists('./seqLibrary'):
+        shutil.rmtree('./seqLibrary')
+    os.makedirs('./seqLibrary')
     seq = []
     seqList = []
     fi = open(fichier, 'r')
@@ -42,9 +45,9 @@ def MakePeptideGreatAgain(scwrl, seq, cyclicPept, output="./"):
     lenPeptide = str(len(seq.split("/")[-1][:-4]))
 
     if cyclicPept is True:
-        refbackbone ="../src/scwrl3_lin/BackboneReference/CyclicPeptide/"+lenPeptide+".pdb"
+        refbackbone ="../src/scwrl3_lin/CyclicPeptide/"+lenPeptide+".pdb"
     else:
-        refbackbone ="../src/scwrl3_lin/BackboneReference/LinearPeptide/"+lenPeptide+".pdb"
+        refbackbone ="../src/scwrl3_lin/LinearPeptide/"+lenPeptide+".pdb"
     Popen(scwrl+" -i "+refbackbone+" -s "+seq+" -o ref.pdb", shell=True).wait()
     if os.path.exists('ref.pdb') is True:
         print "peptide structure was made."
