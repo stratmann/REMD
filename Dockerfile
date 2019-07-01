@@ -18,9 +18,6 @@ RUN apt-get update && \
        cmake=3.5.1-1ubuntu3 \
        libopenmpi-dev \
        python-pip
-
-
-
 ################################################################################
 
 # Set timezone
@@ -37,6 +34,7 @@ RUN apt-get remove -qy vim-tiny && \
       bash-completion \
       wget
 
+
 # Extend bash history
 RUN sed -i 's/HISTSIZE\=1000/HISTSIZE\=1000000/' /root/.bashrc && sed -i 's/HISTFILESIZE\=2000/HISTFILESIZE\=2000000/' /root/.bashrc
 # Modify .bashrc for (improved) autocompletion
@@ -52,72 +50,32 @@ RUN echo "set hlsearch" >> /root/.vimrc
 
 # Install GROMACS (version 5.1.2)
 
-
+#RUN apt-get upgrade -y
 RUN apt-get install build-essential cmake wget openssh-server -y
 RUN wget ftp://ftp.gromacs.org/pub/gromacs/gromacs-5.1.2.tar.gz
 RUN tar zxvf gromacs-5.1.2.tar.gz -C ./
 WORKDIR gromacs-5.1.2
 RUN mkdir ./build
 WORKDIR build
-RUN cmake .. -DGMX_BUILD_OWN_FFTW=ON -DGMX_MPI=on
+RUN cmake .. -DGMX_BUILD_OWN_FFTW=ON
 RUN make
 RUN make install
+WORKDIR ..
+RUN mkdir -p /home/MD/data /home/MD/parameters/FF/ /home/MD/Example/ /home/MD/src
+
+
+COPY ./scripts/* /home/MD/scripts/
+COPY ./parameters/*.mdp /home/MD/parameters/
+COPY ./parameters/FF /gromacs-5.1.2/share/top/
+COPY ./Example/* /home/MD/Example/
+COPY ./src/scwrl3_lin.tar.gz /home/MD/src/
+RUN tar -zxvf /home/MD/src/scwrl3_lin.tar.gz -C /home/MD/src/
+WORKDIR /home/MD/src/scwrl3_lin/
+RUN ./setup
 WORKDIR /
 
-
-RUN mkdir -p /home/REMD/data /home/REMD/output/
-RUN mkdir -p /home/REMD/src/lunch_REMD/
-RUN mkdir -p /home/REMD/src/acpype/
-RUN mkdir -p /home/REMD/src/scripts/
-
-COPY ./data/seq.txt /home/REMD/data/seq-example.txt
-COPY ./data/RGDpV.pdb /home/REMD/data/RGDpV.pdb
-
-COPY ./scripts/lunch_REMD/*.py /home/REMD/src/lunch_REMD/
-COPY ./parameters/*.mdp /home/REMD/src/
-COPY ./src/acpype/* /home/REMD/src/acpype/
-RUN chmod 744 /home/REMD/src/acpype/acpype.py
-COPY ./src/scwrl3_lin.tar.gz /home/REMD/src/
-RUN tar -zxvf /home/REMD/src/scwrl3_lin.tar.gz -C /home/REMD/src/
-COPY ./src/BackboneReference /home/REMD/src/scwrl3_lin
-WORKDIR /home/REMD/src/scwrl3_lin/
-#RUN ./setup
-WORKDIR /
-
-
-
-
+WORKDIR /home/MD
 ################################################################################
-
-# Install AmberTools (version 18)
-
-  # Download from RPBS OwnCloud
-RUN wget https://owncloud.rpbs.univ-paris-diderot.fr:443/owncloud/index.php/s/5yoyGkC9bbadNJ0/download && mv download amber18.tar.gz
-
-RUN tar -zxvf amber18.tar.gz -C /
-WORKDIR /amber18
-RUN export AMBERHOME=`pwd`
-#######A automatiser ces lignes de commandes########
-RUN yes | ./configure gnu
-RUN /bin/bash -c "source /amber18/amber.sh"
-RUN make install
-RUN echo "source $AMBERHOME/amber.sh" >> ~/.bashrc 
-
-#RUN chmod 744 install_amber.sh
-
-RUN rm /amber18.tar.gz
-WORKDIR /home/REMD/
-
-################################################################################
-
-
-#Install mdtraj pyemma
-#Une fois que ambertools a été installé
-#RUN /amber18/miniconda/bin/conda install -c omnia mdtraj pyemma -y
-
-
-################################################################################
-
 # Cleanup
 RUN apt-get autoremove -qy && \
 apt-get clean && \
