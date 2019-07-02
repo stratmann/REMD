@@ -31,7 +31,7 @@ def ReadTopFile(Filename) :
                 newFile += ';'
                 newFile += li
             else :
-                print("Error in Flag")
+                print "Error in Flag"
     return newFile
 
 
@@ -64,11 +64,11 @@ def Regex4topol(line, topfile):
         newline = '{0:>6} {1:>6} {2:>6} {3:>6}'.format(AtomID["C-"], AtomID["CA"], AtomID["N-"],AtomID["H-"])
         newline =newline+line[27:60]+"     C-    CA      N-     H "
     else:
-        print("Regex not found !\nPlease send a email with your PDB file")
+        print "Regex not found !\nPlease send a email with your PDB file"
         #print line
         sys.exit(0)
     #newline = newline+line[27:]
-    print(newline)
+    print newline
     cmd = "sed -i \"s/"+line[:-1]+"/"+newline[:-1]+"/\" "+topfile
     Popen(cmd, shell=True).wait()
 
@@ -93,7 +93,7 @@ def CorrectDihedral(topfile1):
                 tmp = line1
                 cpt += 1
                 Regex4topol(line1, topfile1)
-                print(line1)
+                print line1
                 if cpt > 1:
                     flag = False
 
@@ -106,10 +106,10 @@ def CorrectFirstRes(groFile):
                 continue
             else:
                 if line.split()[1] == "PRO":
-                    print("first amino acid is a proline, no need to correct topology file")
+                    print "first amino acid is a proline, no need to correct topology file"
                     return False
                 else:
-                    print("Improper dihedral correction")
+                    print "Improper dihedral correction"
                     return True
 
 def makeTopology(structure, peptide, gmx, tleap, acpype, forcefield):
@@ -125,12 +125,12 @@ def makeTopology(structure, peptide, gmx, tleap, acpype, forcefield):
         peptide.top: topology file
     """
     if peptide == False:
-        print("No cyclic peptide")
+        print "No cyclic peptide"
         cmd = gmx+" pdb2gmx -p peptide.top -ignh yes -ff "+forcefield+" -water none\
      -o peptide.gro -f "+structure
         Popen(cmd, shell=True).wait()
     else:
-        print("Cyclic peptide")
+        print "Cyclic peptide"
         #First step we remove hhydrogen
         Popen("grep -v 'H' "+structure+" > pept-H.pdb", shell=True).wait()
         #Atoms's number beging at 1
@@ -146,8 +146,8 @@ def makeTopology(structure, peptide, gmx, tleap, acpype, forcefield):
             filin.write("\nset default PBradii bondi")
             filin.write("\nclearpdbresmap")
             filin.write("\nmol = loadpdb pept-good.pdb")
-            print("\nbond mol.1.N mol.",residue.strip(" "),".C")
-            filin.write("\nbond mol.1.N mol.",residue.strip(" "),".C")
+            print "\nbond mol.1.N mol."+residue.strip(" ")+".C"
+            filin.write("\nbond mol.1.N mol."+residue.strip(" ")+".C")
             filin.write("\nsaveamberparm mol pept_amber.prmtop pept_amber.inpcrd")
             filin.write("\nsavepdb mol pept_amber.pdb")
             filin.write("\nquit")
@@ -189,6 +189,6 @@ if __name__ == '__main__':
     pdb = arg.g
 
     if pdb[-3:] != "pdb":
-        print("please provide a PDB file")
+        print "please provide a PDB file"
         sys.exit(0)
     pdb, topology = makeTopology(pdb, arg.cyclic, gmx, leap, acpype, arg.ff)

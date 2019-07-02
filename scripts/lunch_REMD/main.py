@@ -11,7 +11,8 @@ from MakeTopology import *
 gmx="/usr/local/gromacs/bin/gmx_mpi"
 #path for the force field
 leap="/amber18/dat/leap/cmd/oldff/leaprc.ff96"
-acpype="/home/REMD/src/acpype.py"
+acpype="/home/REMD/src/acpype/acpype.py"
+scwrl="/home/REMD/src/scwrl3_lin/./scwrl3"
 
 #gmx="/commun/gromacs/512/bin/gmx"
 #path for the force field
@@ -61,30 +62,33 @@ refTemp = arg.temp.split()
 print "Minimization"
 Popen("rm -rf ./mini1 ./mini2 ./REMD *#", shell=True).wait()
 Popen("mkdir mini1 mini2 REMD", shell=True).wait()
-Popen("cp *.itp *.top *.gro "+pdb+" ./mini1", shell=True).wait()
-Popen("cp /home/REMD/src/minim_good.mdp ./mini1", shell=True).wait()
-Popen("cp /home/REMD/src/Equil.mdp ./mini2", shell=True).wait()
-Popen("cp /home/REMD/src/md_good.mdp ./REMD", shell=True).wait()
-Popen(gmx+" editconf -f ./mini1/"+pdb+" -o ./mini1/center_mini_systeme.gro  -bt cubic -d 1.0 -c yes", shell=True).wait()
-Popen(gmx+" grompp -f ./mini1/minim_good.mdp -p ./mini1/"+topology+" -c ./mini1/center_mini_systeme.gro -o ./mini1/mini1.tpr", shell=True).wait()
-Popen(gmx+" mdrun -deffnm ./mini1/mini1", shell=True).wait()
+Popen("cp *.itp *.top *.gro "+pdb+" "+arg.o+"mini1", shell=True).wait()
+Popen("cp /home/REMD/src/minim_good.mdp "+arg.o+"mini1", shell=True).wait()
+Popen("cp /home/REMD/src/Equil.mdp "+arg.o+"mini2", shell=True).wait()
+Popen("cp /home/REMD/src/md_good.mdp "+arg.o+"REMD", shell=True).wait()
+Popen(gmx+" editconf -f ./mini1/"+pdb+" -o "+arg.o+"mini1/center_mini_systeme.gro  -bt cubic -d 1.0 -c yes", shell=True).wait()
+Popen(gmx+" grompp -f "+arg.o+"mini1/minim_good.mdp -p "+arg.o+"mini1/"+topology+" -c "+arg.o+"mini1/center_mini_systeme.gro -o "+arg.o+"mini1/mini1.tpr", shell=True).wait()
+Popen(gmx+" mdrun -deffnm "+arg.o+"mini1/mini1", shell=True).wait()
 
-Popen("cp ./mini1/mini1.gro ./mini2/mini1.gro", shell=True).wait()
-Popen("cp ./mini1/"+topology+" ./mini2/"+topology, shell=True).wait()
+Popen("cp ./mini1/mini1.gro "+arg.o+"mini2/mini1.gro", shell=True).wait()
+Popen("cp ./mini1/"+topology+" "+arg.o+"mini2/"+topology, shell=True).wait()
 for i in xrange(len(refTemp)):
-    Popen("sed \"s|ref_t = 300 ; .*|ref_t = "+str(refTemp[i])+" ;|\" ./mini2/Equil.mdp>./mini2/Equil_"+str(i)+".mdp", shell=True).wait()
-    Popen(gmx+" grompp -f ./mini2/Equil_"+str(i)+".mdp -c ./mini2/mini1.gro -p ./mini2/"+topology+" -o ./mini2/Equil_"+str(i)+".tpr", shell=True).wait()
-    Popen(gmx+" mdrun -v -deffnm ./mini2/Equil_"+str(i), shell=True).wait()
+    Popen("sed \"s|ref_t = 300 ; .*|ref_t = "+str(refTemp[i])+" ;|\" "+arg.o+"mini2/Equil.mdp>"+arg.o+"mini2/Equil_"+str(i)+".mdp", shell=True).wait()
+    Popen(gmx+" grompp -f "+arg.o+"mini2/Equil_"+str(i)+".mdp -c "+arg.o+"mini2/mini1.gro -p "+arg.o+"mini2/"+topology+" -o "+arg.o+"mini2/Equil_"+str(i)+".tpr", shell=True).wait()
+    Popen(gmx+" mdrun -v -deffnm "+arg.o+"mini2/Equil_"+str(i), shell=True).wait()
 
 
-Popen("cp ./mini2/Equil_* ./REMD", shell=True).wait()
-Popen("cp ./mini2/"+topology+" ./REMD", shell=True).wait()
+Popen("cp "+arg.o+"mini2/Equil_* "+arg.o+"REMD", shell=True).wait()
+Popen("cp "+arg.o+"mini2/"+topology+" "+arg.o+"REMD", shell=True).wait()
 
 print "Time simulation given by the user {0}".format(arg.time)
-Popen("sed -i \"s|nsteps = 100000000 .*|nsteps = "+str(arg.time*500)+" ;|\" ./REMD/md_good.mdp", shell=True).wait()
+Popen("sed -i \"s|nsteps = 100000000 .*|nsteps = "+str(arg.time*500)+" ;|\" "+arg.o+"REMD/md_good.mdp", shell=True).wait()
 for i in xrange(len(refTemp)):
-    Popen("sed \"s|ref_t = 300 .*|ref_t = "+str(refTemp[i])+" ;|\" ./REMD/md_good.mdp>./REMD/md_good_"+str(i)+".mdp", shell=True).wait()
-    Popen(gmx+" grompp -f md_good_"+str(i)+".mdp -c ./REMD/Equil_"+str(i)+".gro -p ./REMD/"+topology+" -o ./REMD/md_good1_"+str(i)+".tpr -t ./REMD/Equil_"+str(i)+".cpt", shell=True).wait()
-    Popen("rm ./REMD/*#", shell=True).wait()
+    Popen("sed \"s|ref_t = 300 .*|ref_t = "+str(refTemp[i])+" ;|\" "+arg.o+"REMD/md_good.mdp>"+arg.o+"REMD/md_good_"+str(i)+".mdp", shell=True).wait()
+    Popen(gmx+" grompp -f "+arg.o+"REMD/md_good_"+str(i)+".mdp -c "+arg.o+"REMD/Equil_"+str(i)+".gro -p "+arg.o+"REMD/"+topology+" -o "+arg.o+"REMD/md_good1_"+str(i)+".tpr -t "+arg.o+"REMD/Equil_"+str(i)+".cpt", shell=True).wait()
+    Popen("rm "+arg.o+"REMD/*#", shell=True).wait()
 
 print "utilisation de {0} replica".format(len(refTemp))
+#command
+cmd = "mpirun -np "+str(len(refTemp))+" --allow-run-as-root "+gmx+" mdrun -s "+arg.o+"REMD/md_good1_ -deffnm "+arg.o+"REMD/md_good1_ -replex 500"  -multi "+str(len(refTemp))
+print cmd
