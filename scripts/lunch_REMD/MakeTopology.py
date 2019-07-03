@@ -31,7 +31,7 @@ def ReadTopFile(Filename) :
                 newFile += ';'
                 newFile += li
             else :
-                print "Error in Flag"
+                print("Error in Flag")
     return newFile
 
 
@@ -53,7 +53,7 @@ def Regex4topol(line, topfile):
     AtomID = {}
     atomName = line.split(";")[1]
     atomNumber = line.split(";")[0]
-    for i in xrange(len(atomName.split())):
+    for i in range(len(atomName.split())):
         AtomID[atomName.split()[i]] = atomNumber.split()[i]
     if line.split(";")[1].split()[0][0] == "N":
         #Modifiy initial order of N-    CA-     C-     O to CA-     N-     C-     O
@@ -64,11 +64,11 @@ def Regex4topol(line, topfile):
         newline = '{0:>6} {1:>6} {2:>6} {3:>6}'.format(AtomID["C-"], AtomID["CA"], AtomID["N-"],AtomID["H-"])
         newline =newline+line[27:60]+"     C-    CA      N-     H "
     else:
-        print "Regex not found !\nPlease send a email with your PDB file"
+        print("Regex not found !\nPlease send a email with your PDB file")
         #print line
         sys.exit(0)
     #newline = newline+line[27:]
-    print newline
+    print(newline)
     cmd = "sed -i \"s/"+line[:-1]+"/"+newline[:-1]+"/\" "+topfile
     Popen(cmd, shell=True).wait()
 
@@ -93,7 +93,7 @@ def CorrectDihedral(topfile1):
                 tmp = line1
                 cpt += 1
                 Regex4topol(line1, topfile1)
-                print line1
+                print(line1)
                 if cpt > 1:
                     flag = False
 
@@ -106,11 +106,21 @@ def CorrectFirstRes(groFile):
                 continue
             else:
                 if line.split()[1] == "PRO":
-                    print "first amino acid is a proline, no need to correct topology file"
+                    print("first amino acid is a proline, no need to correct topology file")
                     return False
                 else:
-                    print "Improper dihedral correction"
+                    print("Improper dihedral correction")
                     return True
+
+def ParseCA(pdb):
+    cpt = 0
+    with open(pdb, "r") as filin:
+        for line in filin:
+            if len(line) < 16:
+                continue
+            if line[12:16].split()[0] == "CA":
+                cpt += 1
+    return str(cpt)
 
 def makeTopology(structure, peptide, gmx, tleap, acpype, forcefield):
     """
@@ -125,19 +135,17 @@ def makeTopology(structure, peptide, gmx, tleap, acpype, forcefield):
         peptide.top: topology file
     """
     if peptide == False:
-        print "No cyclic peptide"
+        print("No cyclic peptide")
         cmd = gmx+" pdb2gmx -p peptide.top -ignh yes -ff "+forcefield+" -water none\
      -o peptide.gro -f "+structure
         Popen(cmd, shell=True).wait()
     else:
-        print "Cyclic peptide"
+        print("Cyclic peptide")
         #First step we remove hhydrogen
         Popen("grep -v 'H' "+structure+" > pept-H.pdb", shell=True).wait()
         #Atoms's number beging at 1
         Popen(gmx+" editconf -f pept-H.pdb -o pept-good.pdb -resnr 1", shell=True).wait()
-        p1= Popen("grep 'CA' pept-good.pdb | tail -n 1", stdout=PIPE, shell=True)
-        output = p1.communicate()
-        residue = output[0][22:26]
+        residue = ParseCA("pept-good.pdb")
         #Create leap script to generate amber topology files
         #gromacs can not make correct topology file for cyclic peptide)
         print("generate script for amber")
@@ -146,7 +154,7 @@ def makeTopology(structure, peptide, gmx, tleap, acpype, forcefield):
             filin.write("\nset default PBradii bondi")
             filin.write("\nclearpdbresmap")
             filin.write("\nmol = loadpdb pept-good.pdb")
-            print "\nbond mol.1.N mol."+residue.strip(" ")+".C"
+            print("\nbond mol.1.N mol."+residue+".C")
             filin.write("\nbond mol.1.N mol."+residue.strip(" ")+".C")
             filin.write("\nsaveamberparm mol pept_amber.prmtop pept_amber.inpcrd")
             filin.write("\nsavepdb mol pept_amber.pdb")
@@ -189,6 +197,6 @@ if __name__ == '__main__':
     pdb = arg.g
 
     if pdb[-3:] != "pdb":
-        print "please provide a PDB file"
+        print("please provide a PDB file")
         sys.exit(0)
     pdb, topology = makeTopology(pdb, arg.cyclic, gmx, leap, acpype, arg.ff)

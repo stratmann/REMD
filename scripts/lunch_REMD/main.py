@@ -34,32 +34,32 @@ help="output path filename ")
 parser.add_argument('-seq', action="store", dest="s", type=str, help="sequence file", default= None)
 
 arg = parser.parse_args()
-print arg
+print(arg)
 pdb = arg.g
 sequence = arg.s
 topology = arg.p
 
 if arg.s is not None:
-    print "Structure creation..."
+    print("Structure creation...")
     parseSeq(arg.s)
     for elmt in glob.glob("./seqLibrary/*.txt"):
         newfolder=elmt.split("/")[-1][:-4]
         MakePeptideGreatAgain(scwrl, elmt, arg.cyclic)
         pdb = "ref.pdb"
 if pdb[-3:] != "pdb":
-    print "please provide a PDB file"
+    print("please provide a PDB file")
     sys.exit(0)
 if topology is None:
     pdb, topology = makeTopology(pdb, arg.cyclic, gmx, leap, acpype, "amber96")
 
 
 if arg.temp is None:
-    print "No temperature given...\n"
-    print "Final files:\nTopology: {0}\nStructure: {1}\n".format(topology, pdb)
+    print("No temperature given...\n")
+    print("Final files:\nTopology: {0}\nStructure: {1}\n".format(topology, pdb))
     sys.exit(0)
 refTemp = arg.temp.split()
 #####Realisation de la minimisation
-print "Minimization"
+print("Minimization")
 Popen("rm -rf ./mini1 ./mini2 ./REMD *#", shell=True).wait()
 Popen("mkdir mini1 mini2 REMD", shell=True).wait()
 Popen("cp *.itp *.top *.gro "+pdb+" "+arg.o+"mini1", shell=True).wait()
@@ -72,7 +72,7 @@ Popen(gmx+" mdrun -deffnm "+arg.o+"mini1/mini1", shell=True).wait()
 
 Popen("cp ./mini1/mini1.gro "+arg.o+"mini2/mini1.gro", shell=True).wait()
 Popen("cp ./mini1/"+topology+" "+arg.o+"mini2/"+topology, shell=True).wait()
-for i in xrange(len(refTemp)):
+for i in range(len(refTemp)):
     Popen("sed \"s|ref_t = 300 ; .*|ref_t = "+str(refTemp[i])+" ;|\" "+arg.o+"mini2/Equil.mdp>"+arg.o+"mini2/Equil_"+str(i)+".mdp", shell=True).wait()
     Popen(gmx+" grompp -f "+arg.o+"mini2/Equil_"+str(i)+".mdp -c "+arg.o+"mini2/mini1.gro -p "+arg.o+"mini2/"+topology+" -o "+arg.o+"mini2/Equil_"+str(i)+".tpr", shell=True).wait()
     Popen(gmx+" mdrun -v -deffnm "+arg.o+"mini2/Equil_"+str(i), shell=True).wait()
@@ -81,14 +81,14 @@ for i in xrange(len(refTemp)):
 Popen("cp "+arg.o+"mini2/Equil_* "+arg.o+"REMD", shell=True).wait()
 Popen("cp "+arg.o+"mini2/"+topology+" "+arg.o+"REMD", shell=True).wait()
 
-print "Time simulation given by the user {0}".format(arg.time)
+print("Time simulation given by the user {0}".format(arg.time))
 Popen("sed -i \"s|nsteps = 100000000 .*|nsteps = "+str(arg.time*500)+" ;|\" "+arg.o+"REMD/md_good.mdp", shell=True).wait()
-for i in xrange(len(refTemp)):
+for i in range(len(refTemp)):
     Popen("sed \"s|ref_t = 300 .*|ref_t = "+str(refTemp[i])+" ;|\" "+arg.o+"REMD/md_good.mdp>"+arg.o+"REMD/md_good_"+str(i)+".mdp", shell=True).wait()
     Popen(gmx+" grompp -f "+arg.o+"REMD/md_good_"+str(i)+".mdp -c "+arg.o+"REMD/Equil_"+str(i)+".gro -p "+arg.o+"REMD/"+topology+" -o "+arg.o+"REMD/md_good1_"+str(i)+".tpr -t "+arg.o+"REMD/Equil_"+str(i)+".cpt", shell=True).wait()
     Popen("rm "+arg.o+"REMD/*#", shell=True).wait()
 
-print "utilisation de {0} replica".format(len(refTemp))
+print("utilisation de {0} replica".format(len(refTemp)))
 #command
-cmd = "mpirun -np "+str(len(refTemp))+" --allow-run-as-root "+gmx+" mdrun -s "+arg.o+"REMD/md_good1_ -deffnm "+arg.o+"REMD/md_good1_ -replex 500"  -multi "+str(len(refTemp))
-print cmd
+cmd = "mpirun -np "+str(len(refTemp))+" --allow-run-as-root "+gmx+" mdrun -s "+arg.o+"REMD/md_good1_ -deffnm "+arg.o+"REMD/md_good1_ -replex 500 -multi "+str(len(refTemp))
+Popen(cmd, shell=True).wait()
