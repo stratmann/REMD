@@ -78,7 +78,7 @@ def centroid(traj, frameClust, nb, output_folder):
 	traj[centroid].save_pdb(output_folder+"clust"+str(nb)+".pdb")
 
 
-def compute_effectif_cluster(ind_clust, time0, dt, output_folder, PathOut, replica,struct):
+def compute_effectif_cluster(ind_clust, time0, dt, PathOut, replica,struct):
 	"""
 	Generate a PDB file for the first structure inside each clusters. Save also the
 	caracteristic of cluster inside the file:  effectif_clust
@@ -86,23 +86,22 @@ def compute_effectif_cluster(ind_clust, time0, dt, output_folder, PathOut, repli
 		_ind_clust: array which contains the list of each frame inside the cluster
 		_time0: The time corresponding of the first frame
 		_dt: Time step
-		_output_folder: path where the folder effectif_clust will be created
 		_PathOut: Path where md_ex.xtc is localizated
 		_replica: Path where is the fist trajectory
 	"""
 	traj = md.load(replica, top=struct)
 	effectif_clust = []
 	tot_effectif = 0
-	for i in xrange(len(ind_clust)):
+	for i in range(len(ind_clust)):
 		effectif_clust.append(len(ind_clust[i]))
 		tot_effectif += len(ind_clust[i])
 	effectif_clust = np.array(effectif_clust)
-	filout = open(output_folder+'/effectif_clust', 'w')
+	filout = open(PathOut+'/effectif_clust', 'w')
 	filout.write("% effectif\tcluster\tframe (ps)\trange_RMSD (A)\t range_Rgyra(A)\n")
-	for i in xrange(len(ind_clust)):
+	for i in range(len(ind_clust)):
 		pourcent = (100*effectif_clust/float(tot_effectif))[i]
 		filout.write(str(round(pourcent,2))+"\t"+str(i+1)+"\t"+str(time0+ind_clust[i][0,1]*dt)+"\n")
-		centroid(traj, ind_clust[i], i+1, output_folder)
+		centroid(traj, ind_clust[i], i+1, PathOut)
 
 
 def gyrateXVG(path_file):
@@ -129,102 +128,96 @@ def save_figure(name, fig_dir):
 #			Main				#
 #################################
 
-
-parser = argparse.ArgumentParser()
-parser = argparse.ArgumentParser(description="This script generate free \
-energy graph based on the radus of gyration and hydrogen bonds.")
-parser.add_argument('-f', action="store",dest="f", type=str,
-help='name  of the trajectory analyzed.\n\
-Exemple: -f traj.xtc')
-parser.add_argument('-g', action="store", dest="g", type=str,
-help='structure file: .gro, .pdb\nExemple: -g struct.gro')
-parser.add_argument('-s', action="store", dest="s", type=str,
-help='tpr file: .tpr')
-parser.add_argument('-o', action="store", dest="o", type=str,
-help='folder where the output are saved', default="./")
-args = parser.parse_args()
-
-
-print(args)
-replica = args.f
-struct = args.g
-tpr = args.s
-PathOut = args.o
-
-#cleanFolder(PathOut)
-cmd= gmx+" check -f "+replica
-print(cmd)
-p = Popen(cmd, stdout=PIPE, stderr=PIPE, shell=True)
-for line in p.stderr:  
-    line = line.decode("utf-8")
-    print(line)
-    if line[:4] == "Step":
-        tot_frame = int(line.split()[1])
-        dt = int(line.split()[2])
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(description="This script generate free \
+    energy graph based on the radus of gyration and hydrogen bonds.")
+    parser.add_argument('-f', action="store",dest="f", type=str,
+    help='name  of the trajectory analyzed.\n\
+    Exemple: -f traj.xtc')
+    parser.add_argument('-g', action="store", dest="g", type=str,
+    help='structure file: .gro, .pdb\nExemple: -g struct.gro')
+    parser.add_argument('-s', action="store", dest="s", type=str,
+    help='tpr file: .tpr')
+    parser.add_argument('-o', action="store", dest="o", type=str,
+    help='folder where the output are saved', default="./free_energy_map/")
+    args = parser.parse_args()
 
 
-#print "Time simulation {0} ps".format(tot_frame*dt)
-cmd =gmx+" trjconv -f "+replica+" -s "+tpr+" -center yes -b "+str(int(tot_frame*dt/10.0))+" -o "+PathOut+"ex_md.xtc"
-Popen("echo \"4 0\" | "+cmd, shell=True).wait()
-replica = PathOut+"ex_md.xtc"
+    print(args)
+    replica = args.f
+    struct = args.g
+    tpr = args.s
+    PathOut = args.o
+
+    cleanFolder(PathOut)
+    cmd= gmx+" check -f "+replica
+    print(cmd)
+    p = Popen(cmd, stdout=PIPE, stderr=PIPE, shell=True)
+    for line in p.stderr:  
+        line = line.decode("utf-8")
+        print(line)
+        if line[:4] == "Step":
+            tot_frame = int(line.split()[1])
+            dt = int(line.split()[2])
 
 
-traj = md.load(replica, top=struct)
-topology = traj.topology
-#backbone's atoms indice
-bb = topology.select('name N or name CA or name C')
-
-gyrateArray = md.compute_rg(traj)
-#cmd = gmx+" hbond -f "+replica+" -s "+tpr+" -xvg xmgrace -num "+PathOut+"hb.xvg"
-#Popen("echo \"0\n0\n\" | "+cmd, shell=True).wait()
-#hbond = parse_xvg(PathOut+"hb.xvg")
-#Compute average structure
-cmd = gmx+" covar -f "+replica+" -s "+tpr+" -av "+PathOut+"average.gro"
-Popen("echo \"4 0\" | "+cmd, shell=True).wait()
-average_struct = md.load(PathOut+"average.gro")
-rms = md.rmsd(traj, average_struct, atom_indices=bb)*10
-#Convert in A
-gyrateArray = gyrateArray*10
-peptide_name = "peptide"
-#Passe d'un tableau python à un tableau numpy, obligatoire
-
-xmin=round(np.min(gyrateArray),2)-0.01
-xmax=round(np.max(gyrateArray),2)+0.01
-#plt.xlim([xmin,xmax])	#Borne
-#on fixe les borne pour avoir les mêmes échelles entre les graphes
-ymin=round(np.min(rms),2)
-ymax=round(np.max(rms),2)+0.05
-plt.xlim([xmin,xmax])
+    #print "Time simulation {0} ps".format(tot_frame*dt)
+    cmd =gmx+" trjconv -f "+replica+" -s "+tpr+" -center yes -b "+str(int(tot_frame*dt/10.0))+" -o "+PathOut+"ex_md.xtc"
+    Popen("echo \"4 0\" | "+cmd, shell=True).wait()
+    replica = PathOut+"ex_md.xtc"
 
 
+    traj = md.load(replica, top=struct)
+    topology = traj.topology
+    #backbone's atoms indice
+    bb = topology.select('name N or name CA or name C')
 
-#Trace la carte d'énergie libre, abscisse : rayon de gyration, ordonnee : RMSD
-plt.xlim([xmin,xmax])	#Borne
-plt.ylim([ymin,ymax])
-mplt.plot_free_energy(gyrateArray, rms)
-#plt.plot([Refgyrate],[ymin], '+')
-plt.ylabel('RMSD (A)')
-plt.xlabel('Radius of gyration (A)')
-save_figure('free'+peptide_name+'.pdf',PathOut+"/")	#Par défaut, image au format pdf
+    gyrateArray = md.compute_rg(traj)
 
-#Mise en place du k-means
-n_clusters = 10
-Y = np.vstack((gyrateArray, rms))
-X = np.transpose(Y)
-clustering = coor.cluster_kmeans(X,k=n_clusters, max_iter=100)
-dtrajs = clustering.dtrajs
+    cmd = gmx+" covar -f "+replica+" -s "+tpr+" -av "+PathOut+"average.gro"
+    Popen("echo \"4 0\" | "+cmd, shell=True).wait()
+    average_struct = md.load(PathOut+"average.gro")
+    rms = md.rmsd(traj, average_struct, atom_indices=bb)*10
+    #Convert in A
+    gyrateArray = gyrateArray*10
+    peptide_name = "peptide"
+    #Passe d'un tableau python à un tableau numpy, obligatoire
 
-cc_x = clustering.clustercenters[:,0]
-cc_y = clustering.clustercenters[:,1]
-ind_clust = clustering.index_clusters
+    xmin=round(np.min(gyrateArray),2)-0.01
+    xmax=round(np.max(gyrateArray),2)+0.01
+    #plt.xlim([xmin,xmax])	#Borne
+    #on fixe les borne pour avoir les mêmes échelles entre les graphes
+    ymin=round(np.min(rms),2)
+    ymax=round(np.max(rms),2)+0.05
+    plt.xlim([xmin,xmax])
+
+
+    #Trace la carte d'énergie libre, abscisse : rayon de gyration, ordonnee : RMSD
+    plt.xlim([xmin,xmax])	#Borne
+    plt.ylim([ymin,ymax])
+    mplt.plot_free_energy(gyrateArray, rms)
+    #plt.plot([Refgyrate],[ymin], '+')
+    plt.ylabel('RMSD (A)')
+    plt.xlabel('Radius of gyration (A)')
+    save_figure('free'+peptide_name+'.pdf',PathOut+"/")	#Par défaut, image au format pdf
+
+    #Mise en place du k-means
+    n_clusters = 10
+    Y = np.vstack((gyrateArray, rms))
+    X = np.transpose(Y)
+    clustering = coor.cluster_kmeans(X,k=n_clusters, max_iter=100)
+    dtrajs = clustering.dtrajs
+
+    cc_x = clustering.clustercenters[:,0]
+    cc_y = clustering.clustercenters[:,1]
+    ind_clust = clustering.index_clusters
 
 
 
-plt.plot(cc_x,cc_y, linewidth=0, marker='o', markersize=5, color='black')
-for i in range(len(cc_x)):
-	plt.text(cc_x[i], cc_y[i], str(i+1), color='grey', fontsize=12)
+    plt.plot(cc_x,cc_y, linewidth=0, marker='o', markersize=5, color='black')
+    for i in range(len(cc_x)):
+	    plt.text(cc_x[i], cc_y[i], str(i+1), color='grey', fontsize=12)
 
-save_figure('free'+peptide_name+'_clusters.pdf',PathOut)
-
-
-#compute_effectif_cluster(ind_clust, time0, dt, output_folder, PathOut, PathOut+"md_ex.xtc", struct)
+    save_figure('free'+peptide_name+'_clusters.pdf',PathOut)
+    compute_effectif_cluster(ind_clust, int(tot_frame*dt/10.0), dt, PathOut, PathOut+"ex_md.xtc", struct)
