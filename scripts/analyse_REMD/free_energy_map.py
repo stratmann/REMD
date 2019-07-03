@@ -1,17 +1,18 @@
 # -*- coding: utf-8 -*-
 
-#import pyemma
+import pyemma
 #pyemma.__version__
 import numpy as np
-#import pyemma.coordinates as coor
-#import pyemma.msm as msm
-#import pyemma.plots as mplt
-#import matplotlib.pyplot as plt
+import pyemma.coordinates as coor
+import pyemma.msm as msm
+import pyemma.plots as mplt
+import matplotlib.pyplot as plt
+plt.switch_backend('agg')
 import os.path
 import sys
 import subprocess
-from subprocess import Popen, PIPE
-import commands
+from subprocess import Popen, PIPE, STDOUT
+#import commands
 import argparse
 import mdtraj as md
 
@@ -68,7 +69,7 @@ def centroid(traj, frameClust, nb, output_folder):
 	#Transpose the numpy matrix to extract frame indice inside each cluster.
 	frameClust = frameClust.T[1]
 	#détermine which frame is the centroid
-	print "determine the centroid for the cluster "+str(nb)
+	print("determine the centroid for the cluster "+str(nb))
 	for IndStruct in frameClust:
 		rmsds = md.rmsd(target = traj[frameClust], reference = traj[IndStruct], atom_indices=CA)
 		if np.mean(rmsds) < MeanRMSD:
@@ -144,7 +145,7 @@ help='folder where the output are saved', default="./")
 args = parser.parse_args()
 
 
-print args
+print(args)
 replica = args.f
 struct = args.g
 tpr = args.s
@@ -152,12 +153,15 @@ PathOut = args.o
 
 #cleanFolder(PathOut)
 cmd= gmx+" check -f "+replica
-print cmd
-stdout = commands.getoutput(cmd)
-for line in stdout.split('\n'):
-	if line[:4] == "Step":
-		tot_frame = int(line.split()[1])
-		dt = int(line.split()[2])
+print(cmd)
+p = Popen(cmd, stdout=PIPE, stderr=PIPE, shell=True)
+for line in p.stderr:  
+    line = line.decode("utf-8")
+    print(line)
+    if line[:4] == "Step":
+        tot_frame = int(line.split()[1])
+        dt = int(line.split()[2])
+
 
 #print "Time simulation {0} ps".format(tot_frame*dt)
 cmd =gmx+" trjconv -f "+replica+" -s "+tpr+" -center yes -b "+str(int(tot_frame*dt/10.0))+" -o "+PathOut+"ex_md.xtc"
@@ -178,11 +182,10 @@ gyrateArray = md.compute_rg(traj)
 cmd = gmx+" covar -f "+replica+" -s "+tpr+" -av "+PathOut+"average.gro"
 Popen("echo \"4 0\" | "+cmd, shell=True).wait()
 average_struct = md.load(PathOut+"average.gro")
-rms = md.rmsd(traj, average_struct, atom_indices=bb)
+rms = md.rmsd(traj, average_struct, atom_indices=bb)*10
 #Convert in A
 gyrateArray = gyrateArray*10
 peptide_name = "peptide"
-sys.exit()
 #Passe d'un tableau python à un tableau numpy, obligatoire
 
 xmin=round(np.min(gyrateArray),2)-0.01
@@ -190,7 +193,7 @@ xmax=round(np.max(gyrateArray),2)+0.01
 #plt.xlim([xmin,xmax])	#Borne
 #on fixe les borne pour avoir les mêmes échelles entre les graphes
 ymin=round(np.min(rms),2)
-ymax=round(np.max(rms),2)+1
+ymax=round(np.max(rms),2)+0.05
 plt.xlim([xmin,xmax])
 
 
@@ -218,7 +221,7 @@ ind_clust = clustering.index_clusters
 
 
 plt.plot(cc_x,cc_y, linewidth=0, marker='o', markersize=5, color='black')
-for i in xrange(len(cc_x)):
+for i in range(len(cc_x)):
 	plt.text(cc_x[i], cc_y[i], str(i+1), color='grey', fontsize=12)
 
 save_figure('free'+peptide_name+'_clusters.pdf',PathOut)
