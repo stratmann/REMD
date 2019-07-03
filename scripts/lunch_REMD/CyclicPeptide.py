@@ -50,9 +50,9 @@ def MakePeptideGreatAgain(scwrl, seq, cyclicPept, output="./"):
         refbackbone ="../src/scwrl3_lin/LinearPeptide/"+lenPeptide+".pdb"
     Popen(scwrl+" -i "+refbackbone+" -s "+seq+" -o ref.pdb", shell=True).wait()
     if os.path.exists('ref.pdb') is True:
-        print "peptide structure was made."
+        print("peptide structure was made.")
     else:
-        print "peptide structure was not made. :'('"
+        print("peptide structure was not made. :'('")
         sys.exit(0)
 
 if __name__ == '__main__':
