@@ -66,14 +66,15 @@ WORKDIR /
 
 
 RUN mkdir -p /home/REMD/data /home/REMD/output/
-RUN mkdir -p /home/REMD/src/lunch_REMD/
+RUN mkdir -p /home/REMD/scripts/lunch_REMD/ /home/REMD/scripts/analyse_REMD
 RUN mkdir -p /home/REMD/src/acpype/
 RUN mkdir -p /home/REMD/src/scripts/
 
 COPY ./data/seq.txt /home/REMD/data/seq-example.txt
 COPY ./data/RGDpV.pdb /home/REMD/data/RGDpV.pdb
 
-COPY ./scripts/lunch_REMD/*.py /home/REMD/src/lunch_REMD/
+COPY ./scripts/lunch_REMD/*.py /home/REMD/scripts/lunch_REMD/
+COPY ./scripts/analyse_REMD/*.py /home/REMD/scripts/analyse_REMD/
 COPY ./parameters/*.mdp /home/REMD/src/
 COPY ./src/acpype/* /home/REMD/src/acpype/
 RUN chmod 744 /home/REMD/src/acpype/acpype.py
@@ -129,3 +130,33 @@ rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 WORKDIR /home/REMD/src/scwrl3_lin/
 RUN ./setup
 WORKDIR /home/REMD/
+#sudo docker pull continuumio/anaconda
+#sudo docker run -it --rm continuumio/anaconda /bin/bash
+#sudo conda install -c omnia pyemma
+
+# Add sudo
+#RUN apt-get -y install sudo
+
+# Add user ubuntu with no password, add to sudo group
+#RUN adduser --disabled-password --gecos '' ubuntu
+#RUN adduser ubuntu sudo
+#RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
+#USER ubuntu
+#WORKDIR /home/ubuntu/
+#RUN chmod a+rwx /home/ubuntu/
+#RUN echo `pwd`
+
+# Anaconda installing
+RUN wget https://repo.continuum.io/archive/Anaconda3-5.0.1-Linux-x86_64.sh
+RUN bash Anaconda3-5.0.1-Linux-x86_64.sh -b
+RUN rm Anaconda3-5.0.1-Linux-x86_64.sh
+
+# Set path to conda
+ENV PATH /root/anaconda3/bin:$PATH
+ENV PATH /home/ubuntu/anaconda3/bin:$PATH
+RUN echo "y" | conda install -c omnia pyemma
+
+################################################################################
+####Pour régler les soucis avec matplotlib
+RUN apt-get update
+RUN apt-get install -y libgl1-mesa-dev
