@@ -1,5 +1,5 @@
-1 PRO
-2 PRO
-3 PRO
-4 PRO
-5 PRO
+1 PRO PRO
+2 PRO ALA
+3 PRO ASP
+4 PRO ala
+5 PRO ala
