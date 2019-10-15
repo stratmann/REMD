@@ -54,7 +54,7 @@ RUN echo "set hlsearch" >> /root/.vimrc
 
 
 RUN apt-get install build-essential cmake wget openssh-server -y
-RUN wget ftp://ftp.gromacs.org/pub/gromacs/gromacs-5.1.2.tar.gz
+RUN wget http://ftp.gromacs.org/pub/gromacs/gromacs-5.1.2.tar.gz
 RUN tar zxvf gromacs-5.1.2.tar.gz -C ./
 WORKDIR gromacs-5.1.2
 RUN mkdir ./build
@@ -70,7 +70,7 @@ RUN mkdir -p /home/REMD/scripts/lunch_REMD/ /home/REMD/scripts/analyse_REMD
 RUN mkdir -p /home/REMD/src/acpype/
 RUN mkdir -p /home/REMD/src/scripts/
 
-COPY ./data/seq.txt /home/REMD/data/seq-example.txt
+COPY ./data/seq*.txt /home/REMD/data/
 COPY ./data/RGDpV.pdb /home/REMD/data/RGDpV.pdb
 
 COPY ./scripts/lunch_REMD/*.py /home/REMD/scripts/lunch_REMD/
@@ -119,6 +119,8 @@ WORKDIR /home/REMD/
 #RUN python -mpip install -U matplotlib
 #RUN python -mpip install numpy mdtraj 
 #RUN python -mpip install pyemma
+
+
 ################################################################################
 
 # Cleanup
@@ -155,7 +157,6 @@ RUN rm Anaconda3-5.0.1-Linux-x86_64.sh
 ENV PATH /root/anaconda3/bin:$PATH
 ENV PATH /home/ubuntu/anaconda3/bin:$PATH
 RUN echo "y" | conda install -c omnia pyemma
-
 ################################################################################
 ####Pour régler les soucis avec matplotlib
 RUN apt-get update
