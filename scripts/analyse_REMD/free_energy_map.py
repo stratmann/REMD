@@ -128,13 +128,10 @@ def save_figure(name, fig_dir):
 #			Main				#
 #################################
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser = argparse.ArgumentParser(description="This script generate free \
-    energy graph based on the radus of gyration and hydrogen bonds.")
-    parser.add_argument('-f', action="store",dest="f", type=str,
-    help='name  of the trajectory analyzed.\n\
-    Exemple: -f traj.xtc')
+    parser = argparse.ArgumentParser(description="This script generate free energy graph based on the radus of gyration and hydrogen bonds.")
+    parser.add_argument('-f', action="store",dest="f", type=str,    help='name  of the trajectory analyzed.\nExemple: -f traj.xtc')
     parser.add_argument('-g', action="store", dest="g", type=str,
     help='structure file: .gro, .pdb\nExemple: -g struct.gro')
     parser.add_argument('-s', action="store", dest="s", type=str,
@@ -176,6 +173,7 @@ if __name__ == '__main__':
     gyrateArray = md.compute_rg(traj)
 
     cmd = gmx+" covar -f "+replica+" -s "+tpr+" -av "+PathOut+"average.gro"
+    #Structure moyenne obtenu sur la traj ex_md
     Popen("echo \"4 0\" | "+cmd, shell=True).wait()
     average_struct = md.load(PathOut+"average.gro")
     rms = md.rmsd(traj, average_struct, atom_indices=bb)*10
@@ -217,7 +215,7 @@ if __name__ == '__main__':
 
     plt.plot(cc_x,cc_y, linewidth=0, marker='o', markersize=5, color='black')
     for i in range(len(cc_x)):
-	    plt.text(cc_x[i], cc_y[i], str(i+1), color='grey', fontsize=12)
+        plt.text(cc_x[i], cc_y[i], str(i+1), color='grey', fontsize=12)
 
     save_figure('free'+peptide_name+'_clusters.pdf',PathOut)
     compute_effectif_cluster(ind_clust, int(tot_frame*dt/10.0), dt, PathOut, PathOut+"ex_md.xtc", struct)
