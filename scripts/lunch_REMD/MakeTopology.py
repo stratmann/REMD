@@ -6,6 +6,7 @@ from subprocess import Popen, PIPE
 import sys
 import re
 import time
+import os
 
 RgFlagCat = re.compile('^\[ [a-z]+ \]')
 RgFlagDefault = re.compile('\[ defaults \]')
@@ -99,6 +100,7 @@ def CorrectDihedral(topfile1):
 
 
 
+
 def CorrectFirstRes(groFile):
     with open(groFile, "r") as file:
         for line in file:
@@ -122,7 +124,37 @@ def ParseCA(pdb):
                 cpt += 1
     return str(cpt)
 
-def makeTopology(structure, peptide, gmx, tleap, acpype, forcefield):
+
+def ChangeChirality(pdb, residues, tleap, outputs="./", subfold="./"):
+    """
+    Create a tleap script to modify the chirality ofselected residues
+    /!\ Proline chirality is not modify
+    Arguments:
+        _pdb: pdb file name you want to modify
+        _residues: residues you want to change (integer list)
+        _outputs: the current path
+        _subfold: path where pdb is
+    Return:
+        _new pdb files
+    """
+    os.chdir(subfold)
+    print("generate script for amber")
+    with open("chirality.leap", "w") as filin:
+        filin.write("source "+tleap)
+        filin.write("\nset default PBradii bondi")
+        filin.write("\nclearpdbresmap")
+        filin.write("\nmol = loadpdb "+pdb)
+        for i in residues:
+            filin.write("\nselect mol."+str(i)+".CA")
+        filin.write("\nflip mol")
+        filin.write("\nsavepdb mol "+pdb)
+        filin.write("\nquit")
+        print("generate amber's topology")
+    Popen("tleap -f chirality.leap", shell=True).wait()
+    os.chdir(outputs)
+
+
+def makeTopology(structure, peptide, gmx, tleap, acpype, forcefield, output = "./"):
     """
     Generate topopoly files for gromacs from intial structure
     Arguments:
@@ -130,10 +162,8 @@ def makeTopology(structure, peptide, gmx, tleap, acpype, forcefield):
         _peptide: Flag to specify if the peptide is cyclic or not
         _gmx: path for gromacs
         _tleap: path for leap
-    Return:
-        peptide.gro: structure file
-        peptide.top: topology file
     """
+    os.chdir(output)
     if peptide == False:
         print("No cyclic peptide")
         cmd = gmx+" pdb2gmx -p peptide.top -ignh yes -ff "+forcefield+" -water none\
@@ -162,17 +192,17 @@ def makeTopology(structure, peptide, gmx, tleap, acpype, forcefield):
         print("generate amber's topology")
         Popen("tleap -f script.leap", shell=True).wait()
         #delete unacessary files
-        Popen("rm ./pept-H.pdb ./pept-good.pdb ./pept_amber.pdb", shell=True).wait()
+        Popen("rm pept-H.pdb pept-good.pdb pept_amber.pdb", shell=True).wait()
         Popen(acpype+" -x pept_amber.inpcrd -p pept_amber.prmtop", shell=True).wait()
         #If the first residu is a proline, no need to correct topology file
         NewFile = ReadTopFile("pept_amber_GMX.top")
         WriteNewFile("pept_amber_GMX.top", NewFile)
-        Popen("rm ./pept_amber.inpcrd ./pept_amber.prmtop ./pept_amber_GMX.top", shell=True).wait()
+        Popen("rm pept_amber.inpcrd pept_amber.prmtop pept_amber_GMX.top", shell=True).wait()
         if CorrectFirstRes("pept_amber_GMX.gro"):
             CorrectDihedral("pept_amber_GMX_corrected.top")
         Popen("mv pept_amber_GMX.gro peptide.gro", shell=True).wait()
         Popen("mv pept_amber_GMX_corrected.top peptide.top", shell=True).wait()
-    return "peptide.gro", "peptide.top"
+
 
 
 
@@ -199,4 +229,4 @@ if __name__ == '__main__':
     if pdb[-3:] != "pdb":
         print("please provide a PDB file")
         sys.exit(0)
-    pdb, topology = makeTopology(pdb, arg.cyclic, gmx, leap, acpype, arg.ff)
+    makeTopology(pdb, arg.cyclic, gmx, leap, acpype, arg.ff)

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # coding: utf8
 
 import argparse
@@ -7,6 +7,7 @@ import sys
 import re
 from CyclicPeptide import *
 from MakeTopology import *
+import random
 
 gmx="/usr/local/gromacs/bin/gmx_mpi"
 #path for the force field
@@ -21,6 +22,49 @@ scwrl="/home/REMD/src/scwrl3_lin/./scwrl3"
 #scwrl="/bigdata/jaysen/these/github/Docker/REMD/src/scwrl3_lin/./scwrl3"
 
 
+def minimization(path="./"):
+    os.chdir(path)
+    print("Minimization")
+    Popen("rm -rf mini1 mini2 REMD *#", shell=True).wait()
+    Popen("mkdir mini1 mini2 REMD", shell=True).wait()
+    Popen("cp *.itp *.top *.gro ./mini1/", shell=True).wait()
+    Popen("cp /home/REMD/src/minim_good.mdp "+path+"mini1", shell=True).wait()
+    Popen("cp /home/REMD/src/Equil.mdp "+path+"mini2", shell=True).wait()
+    Popen("cp /home/REMD/src/md_good.mdp "+path+"REMD", shell=True).wait()
+    Popen(gmx+" editconf -f "+path+"mini1/peptide.gro -o "+path+"mini1/center_mini_systeme.gro  -bt cubic -d 1.0 -c yes", shell=True).wait()
+    Popen(gmx+" grompp -f "+path+"mini1/minim_good.mdp -p "+path+"mini1/*.top -c "+path+"mini1/center_mini_systeme.gro -o "+path+"mini1/mini1.tpr", shell=True).wait()
+    Popen(gmx+" mdrun -deffnm "+path+"mini1/mini1", shell=True).wait()
+    Popen("cp "+path+"mini1/mini1.gro "+path+"mini2/mini1.gro", shell=True).wait()
+    Popen("cp "+path+"mini1/*.top "+path+"mini2/", shell=True).wait()
+    Popen("cp "+path+"mini1/*.itp "+path+"mini2/", shell=True).wait()
+
+
+
+def equilibration(path="./"):
+    #os.chdir(path)
+    print("Equilibration")
+    for i in range(len(refTemp)):
+        Popen("sed \"s|ref_t = 300 ; .*|ref_t = "+str(refTemp[i])+" ;|\" "+path+"mini2/Equil.mdp>"+path+"mini2/Equil_"+str(i)+".mdp", shell=True).wait()
+        Popen(gmx+" grompp -f "+path+"mini2/Equil_"+str(i)+".mdp -c "+path+"mini2/mini1.gro -p "+path+"mini2/*.top -o "+path+"mini2/Equil_"+str(i)+".tpr", shell=True).wait()
+        Popen(gmx+" mdrun -v -deffnm "+path+"mini2/Equil_"+str(i), shell=True).wait()
+    Popen("cp "+path+"mini2/Equil_* "+path+"REMD", shell=True).wait()
+    Popen("cp "+path+"mini2/*.top "+path+"REMD", shell=True).wait()
+
+
+def REMD(refTemp, path="./"):
+    print("Time simulation given by the user {0}".format(arg.time))
+    Popen("sed -i \"s|nsteps = 100000000 .*|nsteps = "+str(arg.time*500)+" ;|\" "+path+"REMD/md_good.mdp", shell=True).wait()
+    for i in range(len(refTemp)):
+        Popen("sed \"s|ref_t = 300 .*|ref_t = "+str(refTemp[i])+" ;|\" "+path+"REMD/md_good.mdp>"+path+"REMD/md_good_"+str(i)+".mdp", shell=True).wait()
+        Popen(gmx+" grompp -f "+path+"REMD/md_good_"+str(i)+".mdp -c "+path+"REMD/Equil_"+str(i)+".gro -p "+path+"REMD/*.top -o "+path+"REMD/md_good1_"+str(i)+".tpr -t "+path+"REMD/Equil_"+str(i)+".cpt", shell=True).wait()
+        Popen("rm "+path+"REMD/*#", shell=True).wait()
+    print("utilisation de {0} replica".format(len(refTemp)))
+    #command
+    cmd = "mpirun -np "+str(len(refTemp))+" --allow-run-as-root "+gmx+" mdrun -s "+path+"REMD/md_good1_ -deffnm "+path+"REMD/md_good1_ -replex 500 -multi "+str(len(refTemp))
+    Popen(cmd, shell=True).wait()
+
+
+
 parser = argparse.ArgumentParser(description='topology fie (GRO,PDB)')
 parser.add_argument('-g', action="store", dest="g", type=str, help="pdb file")
 parser.add_argument('-p', action="store", dest="p", type=str, default = None, help="topology file")
@@ -29,8 +73,8 @@ parser.add_argument('-temperature', action="store", dest="temp",default=None, ty
 parser.add_argument('-time', action="store", dest="time",default=200000, type=int, help="Time simulation (ps)")
 parser.add_argument('-log', action="store", dest="log", type=str,\
  default = "clust.log", help="log file's name: default clust.log")
-parser.add_argument('-o', action="store", dest="o", type=str, default = "./",\
-help="output path filename ")
+parser.add_argument('-o', action="store", dest="o", type=str, \
+default = None, help="output path filename ")
 parser.add_argument('-seq', action="store", dest="s", type=str, help="sequence file", default= None)
 
 arg = parser.parse_args()
@@ -38,57 +82,52 @@ print(arg)
 pdb = arg.g
 sequence = arg.s
 topology = arg.p
+if arg.o is None:
+    outputs = os.getcwd()+"/"+str(random.randint(10000,99999))+"/"
+#sequence = "seq-example.txt"
+else:
+    outputs = arg.o
 
 if arg.s is not None:
     print("Structure creation...")
-    parseSeq(arg.s)
-    for elmt in glob.glob("./seqLibrary/*.txt"):
+    parseSeq(arg.s, outputs)
+    for elmt in glob.glob(outputs+"seqLibrary/*.txt"):
         newfolder=elmt.split("/")[-1][:-4]
-        MakePeptideGreatAgain(scwrl, elmt, arg.cyclic)
-        pdb = "ref.pdb"
-if pdb[-3:] != "pdb":
-    print("please provide a PDB file")
+        MakePeptideGreatAgain(scwrl, elmt, arg.cyclic, outputs)
+        pdb = "ref"+newfolder+".pdb"
+        #new foldders for each peptides
+        subfold = outputs+newfolder+"/"
+        os.makedirs(subfold)
+        Popen("mv "+outputs+pdb+" "+subfold, shell=True).wait()
+        #Check if there is some D- amino acid
+        if newfolder.isupper() is not True:
+            ind = [] #position of the D- amino acid
+            print("convert L- amino acid to D- amino acid\n\
+Except proline (they are not convert to D form)\n")
+            for i in range(len(newfolder)):
+                if newfolder[i].islower():
+                    ind.append(i+1) #first residue is 1 in amber
+            cmd = gmx+" editconf -f "+subfold+pdb+" -resnr 1 -o "+subfold+pdb
+            Popen(cmd, shell=True).wait()
+            ChangeChirality(pdb, ind, leap, outputs, subfold)
+        if pdb[-3:] != "pdb":
+                print("No PDB found")
+                sys.exit(0)
+        if topology is None:
+                makeTopology(pdb, arg.cyclic, gmx, leap, acpype, "amber96", subfold)
+        if arg.temp is None:
+            print("No temperature given...\n")
+            print("Final files:\nTopology: {0}\nStructure: {1}\n".format(topology, pdb))
+            continue
+        elif len(arg.temp) <= 1:
+            print("Need more than 1 temperature to do REMD\n")
+            continue
+        refTemp = arg.temp.split()
+        minimization(subfold)
+        equilibration(subfold)
+        REMD(refTemp, subfold)
+        Popen("rm "+subfold+"*#", shell=True).wait()
+        os.makedirs(subfold+"analyze/")
+        Popen("mv "+subfold+"REMD/md_good1_0.* "+subfold+"analyze/")
+        os.system("python /home/REMD/scripts/analyse_REMD free_energy_map.py -g "+subfold+"analyse/md_good1_0.xtc -s "+subfold+"analyse/md_good1_0.tpr -g "+subfold+"analyse/md_good1_0.gro -o "+subfold+"analyse/")
     sys.exit(0)
-if topology is None:
-    pdb, topology = makeTopology(pdb, arg.cyclic, gmx, leap, acpype, "amber96")
-
-
-if arg.temp is None:
-    print("No temperature given...\n")
-    print("Final files:\nTopology: {0}\nStructure: {1}\n".format(topology, pdb))
-    sys.exit(0)
-refTemp = arg.temp.split()
-#####Realisation de la minimisation
-print("Minimization")
-Popen("rm -rf ./mini1 ./mini2 ./REMD *#", shell=True).wait()
-Popen("mkdir mini1 mini2 REMD", shell=True).wait()
-Popen("cp *.itp *.top *.gro "+pdb+" "+arg.o+"mini1", shell=True).wait()
-Popen("cp /home/REMD/src/minim_good.mdp "+arg.o+"mini1", shell=True).wait()
-Popen("cp /home/REMD/src/Equil.mdp "+arg.o+"mini2", shell=True).wait()
-Popen("cp /home/REMD/src/md_good.mdp "+arg.o+"REMD", shell=True).wait()
-Popen(gmx+" editconf -f ./mini1/"+pdb+" -o "+arg.o+"mini1/center_mini_systeme.gro  -bt cubic -d 1.0 -c yes", shell=True).wait()
-Popen(gmx+" grompp -f "+arg.o+"mini1/minim_good.mdp -p "+arg.o+"mini1/"+topology+" -c "+arg.o+"mini1/center_mini_systeme.gro -o "+arg.o+"mini1/mini1.tpr", shell=True).wait()
-Popen(gmx+" mdrun -deffnm "+arg.o+"mini1/mini1", shell=True).wait()
-
-Popen("cp ./mini1/mini1.gro "+arg.o+"mini2/mini1.gro", shell=True).wait()
-Popen("cp ./mini1/"+topology+" "+arg.o+"mini2/"+topology, shell=True).wait()
-for i in range(len(refTemp)):
-    Popen("sed \"s|ref_t = 300 ; .*|ref_t = "+str(refTemp[i])+" ;|\" "+arg.o+"mini2/Equil.mdp>"+arg.o+"mini2/Equil_"+str(i)+".mdp", shell=True).wait()
-    Popen(gmx+" grompp -f "+arg.o+"mini2/Equil_"+str(i)+".mdp -c "+arg.o+"mini2/mini1.gro -p "+arg.o+"mini2/"+topology+" -o "+arg.o+"mini2/Equil_"+str(i)+".tpr", shell=True).wait()
-    Popen(gmx+" mdrun -v -deffnm "+arg.o+"mini2/Equil_"+str(i), shell=True).wait()
-
-
-Popen("cp "+arg.o+"mini2/Equil_* "+arg.o+"REMD", shell=True).wait()
-Popen("cp "+arg.o+"mini2/"+topology+" "+arg.o+"REMD", shell=True).wait()
-
-print("Time simulation given by the user {0}".format(arg.time))
-Popen("sed -i \"s|nsteps = 100000000 .*|nsteps = "+str(arg.time*500)+" ;|\" "+arg.o+"REMD/md_good.mdp", shell=True).wait()
-for i in range(len(refTemp)):
-    Popen("sed \"s|ref_t = 300 .*|ref_t = "+str(refTemp[i])+" ;|\" "+arg.o+"REMD/md_good.mdp>"+arg.o+"REMD/md_good_"+str(i)+".mdp", shell=True).wait()
-    Popen(gmx+" grompp -f "+arg.o+"REMD/md_good_"+str(i)+".mdp -c "+arg.o+"REMD/Equil_"+str(i)+".gro -p "+arg.o+"REMD/"+topology+" -o "+arg.o+"REMD/md_good1_"+str(i)+".tpr -t "+arg.o+"REMD/Equil_"+str(i)+".cpt", shell=True).wait()
-    Popen("rm "+arg.o+"REMD/*#", shell=True).wait()
-
-print("utilisation de {0} replica".format(len(refTemp)))
-#command
-cmd = "mpirun -np "+str(len(refTemp))+" --allow-run-as-root "+gmx+" mdrun -s "+arg.o+"REMD/md_good1_ -deffnm "+arg.o+"REMD/md_good1_ -replex 500 -multi "+str(len(refTemp))
-Popen(cmd, shell=True).wait()
