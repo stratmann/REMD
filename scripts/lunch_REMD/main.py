@@ -2,6 +2,7 @@
 # coding: utf8
 
 import argparse
+import subprocess
 from subprocess import Popen, PIPE
 import sys
 import re
@@ -128,6 +129,7 @@ Except proline (they are not convert to D form)\n")
         REMD(refTemp, subfold)
         Popen("rm "+subfold+"*#", shell=True).wait()
         os.makedirs(subfold+"analyze/")
-        Popen("mv "+subfold+"REMD/md_good1_0.* "+subfold+"analyze/")
-        os.system("python /home/REMD/scripts/analyse_REMD free_energy_map.py -g "+subfold+"analyse/md_good1_0.xtc -s "+subfold+"analyse/md_good1_0.tpr -g "+subfold+"analyse/md_good1_0.gro -o "+subfold+"analyse/")
-    sys.exit(0)
+        Popen("cp "+subfold+"REMD/md_good1_0* "+subfold+"analyze/", shell=True).wait()
+        print("python /home/REMD/scripts/analyze_REMD/free_energy_map.py -f "+subfold+"analyse/md_good1_0.xtc -s "+subfold+"analyze/md_good1_0.tpr -g "+subfold+"analyze/md_good1_0.gro -o "+subfold+"analyze/")
+        os.system("python /home/REMD/scripts/analyse_REMD/free_energy_map.py -f "+subfold+"analyze/md_good1_0.xtc -s "+subfold+"analyze/md_good1_0.tpr -g "+subfold+"analyze/md_good1_0.gro -o "+subfold+"analyze/free_energy_map/")
+    os.system("python /home/REMD/scripts/analyse_REMD/clust_reg_space.py -f "+subfold+"analyze/md_good1_0.xtc -g "+subfold+"analyze/md_good1_0.gro -o "+subfold+"analyze/reg_space/")
