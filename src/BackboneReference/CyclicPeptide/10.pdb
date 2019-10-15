@@ -1,0 +1,203 @@
+LINK         N   GLY A   1                 C   GLY A  10                  1.33  
+ATOM      1  N   GLY A   1       7.630   0.039  -1.172  1.00  0.00           N  
+ATOM      2  CA  GLY A   1       6.774  -0.494  -2.225  1.00  0.00           C  
+ATOM      3  C   GLY A   1       7.371  -1.755  -2.835  1.00  0.00           C  
+ATOM      4  O   GLY A   1       7.116  -2.077  -3.995  1.00  0.00           O  
+ATOM      5  H   GLY A   1       7.759  -0.496  -0.325  1.00  0.00           H  
+ATOM      6 1HA  GLY A   1       5.788  -0.714  -1.816  1.00  0.00           H  
+ATOM      7 2HA  GLY A   1       6.639   0.260  -3.000  1.00  0.00           H  
+ATOM      8  N   GLY A   2       8.167  -2.468  -2.045  1.00  0.00           N  
+ATOM      9  CA  GLY A   2       8.772  -3.717  -2.493  1.00  0.00           C  
+ATOM     10  C   GLY A   2       7.907  -4.914  -2.118  1.00  0.00           C  
+ATOM     11  O   GLY A   2       6.768  -4.755  -1.679  1.00  0.00           O  
+ATOM     12  H   GLY A   2       8.359  -2.136  -1.110  1.00  0.00           H  
+ATOM     13 1HA  GLY A   2       8.910  -3.688  -3.574  1.00  0.00           H  
+ATOM     14 2HA  GLY A   2       9.760  -3.824  -2.046  1.00  0.00           H  
+ATOM     15  N   GLY A   3       8.454  -6.111  -2.293  1.00  0.00           N  
+ATOM     16  CA  GLY A   3       7.791  -7.330  -1.846  1.00  0.00           C  
+ATOM     17  C   GLY A   3       6.725  -7.773  -2.840  1.00  0.00           C  
+ATOM     18  O   GLY A   3       6.059  -8.789  -2.640  1.00  0.00           O  
+ATOM     19  H   GLY A   3       9.354  -6.179  -2.747  1.00  0.00           H  
+ATOM     20 1HA  GLY A   3       8.529  -8.122  -1.721  1.00  0.00           H  
+ATOM     21 2HA  GLY A   3       7.335  -7.159  -0.871  1.00  0.00           H  
+ATOM     22  N   GLY A   4       6.569  -7.006  -3.914  1.00  0.00           N  
+ATOM     23  CA  GLY A   4       5.483  -7.226  -4.861  1.00  0.00           C  
+ATOM     24  C   GLY A   4       4.337  -6.251  -4.621  1.00  0.00           C  
+ATOM     25  O   GLY A   4       3.282  -6.352  -5.247  1.00  0.00           O  
+ATOM     26  H   GLY A   4       7.219  -6.251  -4.078  1.00  0.00           H  
+ATOM     27 1HA  GLY A   4       5.857  -7.109  -5.878  1.00  0.00           H  
+ATOM     28 2HA  GLY A   4       5.120  -8.249  -4.768  1.00  0.00           H  
+ATOM     29  N   GLY A   5       4.550  -5.308  -3.710  1.00  0.00           N  
+ATOM     30  CA  GLY A   5       3.557  -4.279  -3.425  1.00  0.00           C  
+ATOM     31  C   GLY A   5       3.054  -4.381  -1.991  1.00  0.00           C  
+ATOM     32  O   GLY A   5       1.852  -4.495  -1.750  1.00  0.00           O  
+ATOM     33  H   GLY A   5       5.423  -5.303  -3.202  1.00  0.00           H  
+ATOM     34 1HA  GLY A   5       3.994  -3.294  -3.592  1.00  0.00           H  
+ATOM     35 2HA  GLY A   5       2.720  -4.380  -4.115  1.00  0.00           H  
+ATOM     36  N   GLY A   6       3.982  -4.339  -1.040  1.00  0.00           N  
+ATOM     37  CA  GLY A   6       3.635  -4.426   0.374  1.00  0.00           C  
+ATOM     38  C   GLY A   6       4.737  -5.113   1.170  1.00  0.00           C  
+ATOM     39  O   GLY A   6       5.592  -5.795   0.605  1.00  0.00           O  
+ATOM     40  H   GLY A   6       4.952  -4.244  -1.303  1.00  0.00           H  
+ATOM     41 1HA  GLY A   6       3.465  -3.425   0.769  1.00  0.00           H  
+ATOM     42 2HA  GLY A   6       2.702  -4.978   0.486  1.00  0.00           H  
+ATOM     43  N   GLY A   7       4.712  -4.929   2.486  1.00  0.00           N  
+ATOM     44  CA  GLY A   7       5.734  -5.494   3.358  1.00  0.00           C  
+ATOM     45  C   GLY A   7       6.886  -4.519   3.561  1.00  0.00           C  
+ATOM     46  O   GLY A   7       7.884  -4.847   4.203  1.00  0.00           O  
+ATOM     47  H   GLY A   7       3.966  -4.382   2.892  1.00  0.00           H  
+ATOM     48 1HA  GLY A   7       5.291  -5.746   4.322  1.00  0.00           H  
+ATOM     49 2HA  GLY A   7       6.109  -6.421   2.925  1.00  0.00           H  
+ATOM     50  N   GLY A   8       6.742  -3.318   3.011  1.00  0.00           N  
+ATOM     51  CA  GLY A   8       7.756  -2.281   3.158  1.00  0.00           C  
+ATOM     52  C   GLY A   8       8.603  -2.155   1.898  1.00  0.00           C  
+ATOM     53  O   GLY A   8       8.134  -2.428   0.794  1.00  0.00           O  
+ATOM     54  H   GLY A   8       5.909  -3.119   2.476  1.00  0.00           H  
+ATOM     55 1HA  GLY A   8       7.273  -1.328   3.374  1.00  0.00           H  
+ATOM     56 2HA  GLY A   8       8.396  -2.516   4.008  1.00  0.00           H  
+ATOM     57  N   GLY A   9       9.853  -1.738   2.071  1.00  0.00           N  
+ATOM     58  CA  GLY A   9      10.786  -1.633   0.955  1.00  0.00           C  
+ATOM     59  C   GLY A   9      10.513  -0.386   0.124  1.00  0.00           C  
+ATOM     60  O   GLY A   9      11.113  -0.189  -0.933  1.00  0.00           O  
+ATOM     61  H   GLY A   9      10.165  -1.488   2.998  1.00  0.00           H  
+ATOM     62 1HA  GLY A   9      11.807  -1.605   1.336  1.00  0.00           H  
+ATOM     63 2HA  GLY A   9      10.703  -2.519   0.327  1.00  0.00           H  
+ATOM     64  N   GLY A  10       9.605   0.454   0.608  1.00  0.00           N  
+ATOM     65  CA  GLY A  10       9.158   1.618  -0.148  1.00  0.00           C  
+ATOM     66  C   GLY A  10       8.245   1.210  -1.298  1.00  0.00           C  
+ATOM     67  O   GLY A  10       8.101   1.941  -2.278  1.00  0.00           O  
+ATOM     68  H   GLY A  10       9.214   0.282   1.523  1.00  0.00           H  
+ATOM     69 1HA  GLY A  10       8.629   2.302   0.516  1.00  0.00           H  
+ATOM     70 2HA  GLY A  10      10.023   2.152  -0.538  1.00  0.00           H  
+TER                                                                             
+# All scores below are weighted scores, not raw scores.
+#BEGIN_POSE_ENERGIES_TABLE 
+label fa_atr fa_rep fa_sol fa_intra_rep fa_intra_sol_xover4 lk_ball_wtd fa_elec pro_close hbond_sr_bb hbond_lr_bb hbond_bb_sc hbond_sc dslf_fa13 omega fa_dun p_aa_pp yhh_planarity ref rama_prepro total
+weights 1 0.55 1 0.005 1 1 1 1.25 1 1 1 1 1.25 0.4 0.7 0.6 0.625 1 0.45 NA
+pose -13.7834 1.69975 16.0472 0.0008 0 -1.10741 0.62898 0 -1.78102 -1.88496 0 0 0 0.77741 0 -13.7721 0 7.9816 1.75324 -3.43983
+GLY_1 -1.56218 0.14951 1.59001 9e-05 0 -0.21686 -0.15041 0 0 0 0 0 0 -0.09926 0 -1.51639 0 0.79816 0.05939 -0.94792
+GLY_2 -2.88733 0.27705 3.60579 0.00011 0 -0.11251 -0.95089 0 0 0 0 0 0 0.44046 0 -0.83885 0 0.79816 0.47496 0.80695
+GLY_3 -0.95386 0.07242 1.08451 5e-05 0 -0.07685 0.44557 0 0 0 0 0 0 0.25307 0 -1.39846 0 0.79816 -0.44671 -0.22209
+GLY_4 -0.8593 0.28453 0.9811 5e-05 0 -0.15086 0.37077 0 0 0 0 0 0 -0.0797 0 -1.50495 0 0.79816 -0.66075 -0.82095
+GLY_5 -1.33239 0.07693 1.362 0.00015 0 -0.20759 -0.32049 0 0 0 0 0 0 -0.02049 0 -1.4779 0 0.79816 1.29064 0.16903
+GLY_6 -1.77339 0.13533 2.40207 0.0001 0 0.1188 0.36421 0 0 0 0 0 0 -0.03769 0 -1.51041 0 0.79816 1.84507 2.34224
+GLY_7 -0.42298 0.04524 0.57714 5e-05 0 -0.0736 0.36489 0 0 0 0 0 0 -0.09884 0 -1.4785 0 0.79816 -0.00645 -0.29488
+GLY_8 -1.89513 0.29805 2.35096 6e-05 0 -0.16562 -0.61728 0 0 0 0 0 0 0.46752 0 -1.51258 0 0.79816 0.06498 -0.21086
+GLY_9 -1.19879 0.11839 1.14281 5e-05 0 -0.1008 0.67699 0 0 0 0 0 0 0.06784 0 -1.3422 0 0.79816 -0.02026 0.14221
+GLY_10 -0.89803 0.24228 0.95086 8e-05 0 -0.12154 0.44562 0 0 0 0 0 0 -0.11551 0 -1.19185 0 0.79816 -0.84763 -0.73756
+#END_POSE_ENERGIES_TABLE 
+
+END
+SS: LLLLLLLLLL
+SCORE_INFO:
+TOTAL_SCORE: -3.43983
+WTS:  fa_atr: 1 fa_rep: 0.55 fa_sol: 1 fa_intra_rep: 0.005 fa_intra_sol_xover4: 1 lk_ball_wtd: 1 fa_elec: 1 pro_close: 1.25 hbond_sr_bb: 1 hbond_lr_bb: 1 hbond_bb_sc: 1 hbond_sc: 1 dslf_fa13: 1.25 omega: 0.4 fa_dun: 0.7 p_aa_pp: 0.6 yhh_planarity: 0.625 ref: 1 rama_prepro: 0.45
+TOTAL_WTD:  fa_atr:   -13.783 fa_rep:     1.700 fa_sol:    16.047 fa_intra_rep:     0.001 fa_intra_sol_xover4:     0.000 lk_ball_wtd:    -1.107 fa_elec:     0.629 pro_close:     0.000 hbond_sr_bb:    -1.781 hbond_lr_bb:    -1.885 hbond_bb_sc:     0.000 hbond_sc:     0.000 dslf_fa13:     0.000 omega:     0.777 fa_dun:     0.000 p_aa_pp:   -13.772 yhh_planarity:     0.000 ref:     7.982 rama_prepro:     1.753
+RSD_WTD: 1  fa_atr:    -1.562 fa_rep:     0.150 fa_sol:     1.590 fa_intra_rep:     0.000 fa_intra_sol_xover4:     0.000 lk_ball_wtd:    -0.217 fa_elec:    -0.150 pro_close:     0.000 hbond_sr_bb:     0.000 hbond_lr_bb:     0.000 hbond_bb_sc:     0.000 hbond_sc:     0.000 dslf_fa13:     0.000 omega:    -0.099 fa_dun:     0.000 p_aa_pp:    -1.516 yhh_planarity:     0.000 ref:     0.798 rama_prepro:     0.059
+RSD_WTD: 2  fa_atr:    -2.887 fa_rep:     0.277 fa_sol:     3.606 fa_intra_rep:     0.000 fa_intra_sol_xover4:     0.000 lk_ball_wtd:    -0.113 fa_elec:    -0.951 pro_close:     0.000 hbond_sr_bb:     0.000 hbond_lr_bb:     0.000 hbond_bb_sc:     0.000 hbond_sc:     0.000 dslf_fa13:     0.000 omega:     0.440 fa_dun:     0.000 p_aa_pp:    -0.839 yhh_planarity:     0.000 ref:     0.798 rama_prepro:     0.475
+RSD_WTD: 3  fa_atr:    -0.954 fa_rep:     0.072 fa_sol:     1.085 fa_intra_rep:     0.000 fa_intra_sol_xover4:     0.000 lk_ball_wtd:    -0.077 fa_elec:     0.446 pro_close:     0.000 hbond_sr_bb:     0.000 hbond_lr_bb:     0.000 hbond_bb_sc:     0.000 hbond_sc:     0.000 dslf_fa13:     0.000 omega:     0.253 fa_dun:     0.000 p_aa_pp:    -1.398 yhh_planarity:     0.000 ref:     0.798 rama_prepro:    -0.447
+RSD_WTD: 4  fa_atr:    -0.859 fa_rep:     0.285 fa_sol:     0.981 fa_intra_rep:     0.000 fa_intra_sol_xover4:     0.000 lk_ball_wtd:    -0.151 fa_elec:     0.371 pro_close:     0.000 hbond_sr_bb:     0.000 hbond_lr_bb:     0.000 hbond_bb_sc:     0.000 hbond_sc:     0.000 dslf_fa13:     0.000 omega:    -0.080 fa_dun:     0.000 p_aa_pp:    -1.505 yhh_planarity:     0.000 ref:     0.798 rama_prepro:    -0.661
+RSD_WTD: 5  fa_atr:    -1.332 fa_rep:     0.077 fa_sol:     1.362 fa_intra_rep:     0.000 fa_intra_sol_xover4:     0.000 lk_ball_wtd:    -0.208 fa_elec:    -0.320 pro_close:     0.000 hbond_sr_bb:     0.000 hbond_lr_bb:     0.000 hbond_bb_sc:     0.000 hbond_sc:     0.000 dslf_fa13:     0.000 omega:    -0.020 fa_dun:     0.000 p_aa_pp:    -1.478 yhh_planarity:     0.000 ref:     0.798 rama_prepro:     1.291
+RSD_WTD: 6  fa_atr:    -1.773 fa_rep:     0.135 fa_sol:     2.402 fa_intra_rep:     0.000 fa_intra_sol_xover4:     0.000 lk_ball_wtd:     0.119 fa_elec:     0.364 pro_close:     0.000 hbond_sr_bb:     0.000 hbond_lr_bb:     0.000 hbond_bb_sc:     0.000 hbond_sc:     0.000 dslf_fa13:     0.000 omega:    -0.038 fa_dun:     0.000 p_aa_pp:    -1.510 yhh_planarity:     0.000 ref:     0.798 rama_prepro:     1.845
+RSD_WTD: 7  fa_atr:    -0.423 fa_rep:     0.045 fa_sol:     0.577 fa_intra_rep:     0.000 fa_intra_sol_xover4:     0.000 lk_ball_wtd:    -0.074 fa_elec:     0.365 pro_close:     0.000 hbond_sr_bb:     0.000 hbond_lr_bb:     0.000 hbond_bb_sc:     0.000 hbond_sc:     0.000 dslf_fa13:     0.000 omega:    -0.099 fa_dun:     0.000 p_aa_pp:    -1.479 yhh_planarity:     0.000 ref:     0.798 rama_prepro:    -0.006
+RSD_WTD: 8  fa_atr:    -1.895 fa_rep:     0.298 fa_sol:     2.351 fa_intra_rep:     0.000 fa_intra_sol_xover4:     0.000 lk_ball_wtd:    -0.166 fa_elec:    -0.617 pro_close:     0.000 hbond_sr_bb:     0.000 hbond_lr_bb:     0.000 hbond_bb_sc:     0.000 hbond_sc:     0.000 dslf_fa13:     0.000 omega:     0.468 fa_dun:     0.000 p_aa_pp:    -1.513 yhh_planarity:     0.000 ref:     0.798 rama_prepro:     0.065
+RSD_WTD: 9  fa_atr:    -1.199 fa_rep:     0.118 fa_sol:     1.143 fa_intra_rep:     0.000 fa_intra_sol_xover4:     0.000 lk_ball_wtd:    -0.101 fa_elec:     0.677 pro_close:     0.000 hbond_sr_bb:     0.000 hbond_lr_bb:     0.000 hbond_bb_sc:     0.000 hbond_sc:     0.000 dslf_fa13:     0.000 omega:     0.068 fa_dun:     0.000 p_aa_pp:    -1.342 yhh_planarity:     0.000 ref:     0.798 rama_prepro:    -0.020
+RSD_WTD: 10  fa_atr:    -0.898 fa_rep:     0.242 fa_sol:     0.951 fa_intra_rep:     0.000 fa_intra_sol_xover4:     0.000 lk_ball_wtd:    -0.122 fa_elec:     0.446 pro_close:     0.000 hbond_sr_bb:     0.000 hbond_lr_bb:     0.000 hbond_bb_sc:     0.000 hbond_sc:     0.000 dslf_fa13:     0.000 omega:    -0.116 fa_dun:     0.000 p_aa_pp:    -1.192 yhh_planarity:     0.000 ref:     0.798 rama_prepro:    -0.848
+ScoreFunction::show():
+weights: (fa_atr 1) (fa_rep 0.55) (fa_sol 1) (fa_intra_rep 0.005) (fa_intra_sol_xover4 1) (lk_ball_wtd 1) (fa_elec 1) (pro_close 1.25) (hbond_sr_bb 1) (hbond_lr_bb 1) (hbond_bb_sc 1) (hbond_sc 1) (dslf_fa13 1.25) (omega 0.4) (fa_dun 0.7) (p_aa_pp 0.6) (yhh_planarity 0.625) (ref 1) (rama_prepro 0.45)
+energy_method_options: EnergyMethodOptions::show: aa_composition_setup_files: 
+EnergyMethodOptions::show: mhc_epitope_setup_files: 
+EnergyMethodOptions::show: netcharge_setup_files: 
+EnergyMethodOptions::show: aspartimide_penalty_value: 25
+EnergyMethodOptions::show: etable_type: FA_STANDARD_DEFAULT
+analytic_etable_evaluation: 1
+EnergyMethodOptions::show: method_weights: ref 1.32468 3.25479 -2.14574 -2.72453 1.21829 0.79816 -0.30065 2.30374 -0.71458 1.66147 1.65735 -1.34026 -1.64321 -1.45095 -0.09474 -0.28969 1.15175 2.64269 2.26099 0.58223
+EnergyMethodOptions::show: method_weights: free_res
+EnergyMethodOptions::show: unfolded_energies_type: UNFOLDED_SCORE12
+EnergyMethodOptions::show: split_unfolded_label_type: SPLIT_UNFOLDED_MM
+EnergyMethodOptions::show: split_unfolded_value_type: SPLIT_UNFOLDED_BOLTZ
+EnergyMethodOptions::show: atom_vdw_atom_type_set_name: centroid
+EnergyMethodOptions::show: exclude_protein_protein_fa_elec: false
+EnergyMethodOptions::show: exclude_RNA_RNA_fa_elec: false
+EnergyMethodOptions::show: exclude_RNA_protein_fa_elec: false
+EnergyMethodOptions::show: exclude_monomer_fa_elec: false
+EnergyMethodOptions::show: elec_max_dis: 5.5
+EnergyMethodOptions::show: elec_min_dis: 1.6
+EnergyMethodOptions::show: elec_die: 10
+EnergyMethodOptions::show: elec_no_dis_dep_die: false
+EnergyMethodOptions::show: elec_sigmoidal_die: true
+EnergyMethodOptions::show: elec_sigmoidal_D: 80
+EnergyMethodOptions::show: elec_sigmoidal_D0: 6
+EnergyMethodOptions::show: elec_sigmoidal_S: 0.4
+EnergyMethodOptions::show: smooth_fa_elec: true
+EnergyMethodOptions::show: grpelec_fade_type: false
+EnergyMethodOptions::show: grpelec_fade_param1: 1
+EnergyMethodOptions::show: grpelec_fade_param2: 1
+EnergyMethodOptions::show: grpelec_fade_hbond: 0
+EnergyMethodOptions::show: grp_cpfxn: 1
+EnergyMethodOptions::show: elec_group_file: /scoring/score_functions/elec_group_def.dat
+EnergyMethodOptions::show: grpelec_context_dependent: 0
+EnergyMethodOptions::show: use_polarization: true
+EnergyMethodOptions::show: use_gen_kirkwood: true
+EnergyMethodOptions::show: protein_dielectric: 1
+EnergyMethodOptions::show: water_dielectric: 78.3
+EnergyMethodOptions::show: exclude_DNA_DNA: true
+EnergyMethodOptions::show: exclude_intra_res_protein: false
+EnergyMethodOptions::show: count_pair_hybrid: false
+EnergyMethodOptions::show: put_intra_into_total: false
+EnergyMethodOptions::show: geom_sol_interres_path_distance_cutoff: false
+EnergyMethodOptions::show: geom_sol_intrares_path_distance_cutoff: true
+EnergyMethodOptions::show: eval_intrares_elec_ST_only: false
+EnergyMethodOptions::show: envsmooth_zero_negatives: false
+EnergyMethodOptions::show: cst_max_seq_sep: 18446744073709551615
+EnergyMethodOptions::show: pb_bound_tag: bound
+EnergyMethodOptions::show: pb_unbound_tag: unbound
+EnergyMethodOptions::show: ordered_wat_penalty: 1.221
+EnergyMethodOptions::show: ordered_pt_wat_penalty: 2.709
+EnergyMethodOptions::show: voids_penalty_energy_containing_cones_cutoff_:6
+EnergyMethodOptions::show: voids_penalty_energy_cone_distance_cutoff_: 8
+EnergyMethodOptions::show: voids_penalty_energy_cone_dotproduct_cutoff_: 0.1
+EnergyMethodOptions::show: voids_penalty_energy_voxel_grid_padding_: 1
+EnergyMethodOptions::show: voids_penalty_energy_voxel_size_: 0.5
+EnergyMethodOptions::show: voids_penalty_energy_disabled_except_during_packing_: TRUE
+EnergyMethodOptions::show: hbnet_bonus_ramping_function_: "quadratic"
+EnergyMethodOptions::show: hbnet_max_network_size_: 0
+EnergyMethodOptions::show: approximate_buried_unsat_penalty_hbond_energy_threshold_: -0.25
+EnergyMethodOptions::show: approximate_buried_unsat_penalty_burial_atomic_depth_: 4.5
+EnergyMethodOptions::show: approximate_buried_unsat_penalty_burial_probe_radius_: 2.3
+EnergyMethodOptions::show: approximate_buried_unsat_penalty_burial_resolution_: 0.5
+EnergyMethodOptions::show: approximate_buried_unsat_penalty_oversat_penalty_: 1
+EnergyMethodOptions::show: approximate_buried_unsat_penalty_assume_const_backbone_:1
+EnergyMethodOptions::show: bond_angle_central_atoms_to_score:
+EnergyMethodOptions::show: bond_angle_residue_type_param_set: none
+HBondOptions::show: exclude_DNA_DNA: true
+HBondOptions::show: exclude_intra_res_protein_: false
+HBondOptions::show: exclude_intra_res_RNA_: false
+HBondOptions::show: put_intra_into_total_: false
+HBondOptions::show: exclude_self_hbonds: true
+HBondOptions::show: use_hb_env_dep: false
+HBondOptions::show: use_hb_env_dep_DNA: true
+HBondOptions::show: smooth_hb_env_dep: true
+HBondOptions::show: bb_donor_acceptor_check: true
+HBondOptions::show: decompose_bb_hb_into_pair_energies: false
+HBondOptions::show: params_database_tag_: ref2015_params
+HBondOptions::show: use_sp2_chi_penalty_: true
+HBondOptions::show: sp2_BAH180_rise_: 0.75
+HBondOptions::show: sp2_outer_width_: 0.357
+HBondOptions::show: measure_sp3acc_BAH_from_hvy_: true
+HBondOptions::show: fade_energy_: 1
+HBondOptions::show: exclude_ether_oxygens_: 0
+HBondOptions::show: Mbhbond: false 
+HbondOptions::show: mphbond: false
+HBondOptions::show: hbond_energy_shift: 0
+HBondOptions::show: water_hybrid_sf: false
+RNA_EnergyMethodOptions::show: syn_G_potential_bonus: 0
+RNA_EnergyMethodOptions::show: torsion_potential: ps_04282011
+RNA_EnergyMethodOptions::show: suiteness_bonus: Richardson
+RNA_EnergyMethodOptions::show: rna_base_pair_xy_filename: scoring/rna/rna_base_pair_xy.dat
+FreeDOF_Options::show: free_suite_bonus: -1
+FreeDOF_Options::show: free_2HOprime_bonus: -0.5
+FreeDOF_Options::show: free_sugar_bonus: -1
+FreeDOF_Options::show: pack_phosphate_penalty: 0.25
+FreeDOF_Options::show: free_side_chain_bonus: -0.5
+
