@@ -103,14 +103,19 @@ if arg.s is not None:
         #Check if there is some D- amino acid
         if newfolder.isupper() is not True:
             ind = [] #position of the D- amino acid
-            print("convert L- amino acid to D- amino acid\n\
-Except proline (they are not convert to D form)\n")
+            #convert L- amino acid to D- amino acid 
+            #Except proline (they are not convert to D form)
             for i in range(len(newfolder)):
                 if newfolder[i].islower():
                     ind.append(i+1) #first residue is 1 in amber
             cmd = gmx+" editconf -f "+subfold+pdb+" -resnr 1 -o "+subfold+pdb
             Popen(cmd, shell=True).wait()
             ChangeChirality(pdb, ind, leap, outputs, subfold)
+            #Replace amino acid to D-proline
+            for i in range(len(newfolder)):
+                if newfolder[i].islower() and newfolder[i].islower() == "p":
+                    print("D-Pro in position {0}".format(i+1))
+                    PutThatDpro(subfold+pdb, "/home/REMD/src/scwrl3_lin/patron_D-pro.pdb", int(i+1))
         if pdb[-3:] != "pdb":
                 print("No PDB found")
                 sys.exit(0)
@@ -132,4 +137,4 @@ Except proline (they are not convert to D form)\n")
         Popen("cp "+subfold+"REMD/md_good1_0* "+subfold+"analyze/", shell=True).wait()
         print("python /home/REMD/scripts/analyze_REMD/free_energy_map.py -f "+subfold+"analyse/md_good1_0.xtc -s "+subfold+"analyze/md_good1_0.tpr -g "+subfold+"analyze/md_good1_0.gro -o "+subfold+"analyze/")
         os.system("python /home/REMD/scripts/analyse_REMD/free_energy_map.py -f "+subfold+"analyze/md_good1_0.xtc -s "+subfold+"analyze/md_good1_0.tpr -g "+subfold+"analyze/md_good1_0.gro -o "+subfold+"analyze/free_energy_map/")
-    os.system("python /home/REMD/scripts/analyse_REMD/clust_reg_space.py -f "+subfold+"analyze/md_good1_0.xtc -g "+subfold+"analyze/md_good1_0.gro -o "+subfold+"analyze/reg_space/")
+        os.system("python /home/REMD/scripts/analyse_REMD/clust_reg_space.py -f "+subfold+"analyze/md_good1_0.xtc -g "+subfold+"analyze/md_good1_0.gro -o "+subfold+"analyze/reg_space/")
