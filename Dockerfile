@@ -1,163 +1,140 @@
-FROM ubuntu:xenial
+#!/usr/bin/env python3
+# coding: utf8
 
-MAINTAINER Jaysen <jaysen.sawmynaden@upmc.fr>
+import argparse
+import subprocess
+from subprocess import Popen, PIPE
+import sys
+import re
+from CyclicPeptide import *
+from MakeTopology import *
+import random
 
-RUN apt-get update && \
-    apt-get install -qy \
-       python \
-       csh \
-       flex \
-       patch \
-       gfortran \
-       g++ \
-       make \
-       xorg-dev \
-       bison \
-       libbz2-dev \
-       openmpi-bin \
-       cmake=3.5.1-1ubuntu3 \
-       libopenmpi-dev \
-       python-pip
+gmx="/usr/local/gromacs/bin/gmx_mpi"
+#path for the force field
+leap="/amber18/dat/leap/cmd/oldff/leaprc.ff96"
+acpype="/home/REMD/src/acpype/acpype.py"
+scwrl="/home/REMD/src/scwrl3_lin/./scwrl3"
 
-
-
-################################################################################
-
-# Set timezone
-ENV TZ=Europe/Paris
-RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
-
-# Useful tools when running Docker in interactive mode
-  # Removing vim-tiny is Ubuntu-specific:
-RUN apt-get remove -qy vim-tiny && \
-    apt-get -qy install \
-      vim \
-      htop \
-      screen \
-      bash-completion \
-      wget
-
-# Extend bash history
-RUN sed -i 's/HISTSIZE\=1000/HISTSIZE\=1000000/' /root/.bashrc && sed -i 's/HISTFILESIZE\=2000/HISTFILESIZE\=2000000/' /root/.bashrc
-# Modify .bashrc for (improved) autocompletion
-RUN sed -i '/^#.*bash_completion/s/^#//' /root/.bashrc && sed -i '$ s/^#//' /root/.bashrc
-# Change the default shell in screen to bash
-RUN echo "shell \"/bin/bash\"" > /root/.screenrc
-
-# Vim: default syntax highlighting + highlight search
-RUN echo "colorscheme default" > /root/.vimrc
-RUN echo "set hlsearch" >> /root/.vimrc
-
-################################################################################
-
-# Install GROMACS (version 5.1.2)
+#gmx="/commun/gromacs/512/bin/gmx"
+#path for the force field
+#leap="/home/jaysen/amber14/dat/leap/cmd/oldff/leaprc.ff96"
+#acpype="/bigdata/jaysen/Rapport_MAUD/Scripts/acpype/acpype.py"
+#scwrl="/bigdata/jaysen/these/github/Docker/REMD/src/scwrl3_lin/./scwrl3"
 
 
-RUN apt-get install build-essential cmake wget openssh-server -y
-RUN wget http://ftp.gromacs.org/pub/gromacs/gromacs-5.1.2.tar.gz
-RUN tar zxvf gromacs-5.1.2.tar.gz -C ./
-WORKDIR gromacs-5.1.2
-RUN mkdir ./build
-WORKDIR build
-RUN cmake .. -DGMX_BUILD_OWN_FFTW=ON -DGMX_MPI=on
-RUN make
-RUN make install
-WORKDIR /
-
-
-RUN mkdir -p /home/REMD/data /home/REMD/output/
-RUN mkdir -p /home/REMD/scripts/lunch_REMD/ /home/REMD/scripts/analyse_REMD
-RUN mkdir -p /home/REMD/src/acpype/
-RUN mkdir -p /home/REMD/src/scripts/
-
-COPY ./data/seq*.txt /home/REMD/data/
-COPY ./data/RGDpV.pdb /home/REMD/data/RGDpV.pdb
-
-COPY ./scripts/lunch_REMD/*.py /home/REMD/scripts/lunch_REMD/
-COPY ./scripts/analyse_REMD/*.py /home/REMD/scripts/analyse_REMD/
-COPY ./parameters/*.mdp /home/REMD/src/
-COPY ./src/acpype/* /home/REMD/src/acpype/
-RUN chmod 744 /home/REMD/src/acpype/acpype.py
-COPY ./src/scwrl3_lin.tar.gz /home/REMD/src/
-RUN tar -zxvf /home/REMD/src/scwrl3_lin.tar.gz -C /home/REMD/src/
-COPY ./src/BackboneReference /home/REMD/src/scwrl3_lin
-WORKDIR /home/REMD/src/scwrl3_lin/
-#RUN ./setup
-WORKDIR /
+def minimization(path="./"):
+    os.chdir(path)
+    print("Minimization")
+    Popen("rm -rf mini1 mini2 REMD *#", shell=True).wait()
+    Popen("mkdir mini1 mini2 REMD", shell=True).wait()
+    Popen("cp *.itp *.top *.gro ./mini1/", shell=True).wait()
+    Popen("cp /home/REMD/src/minim_good.mdp "+path+"mini1", shell=True).wait()
+    Popen("cp /home/REMD/src/Equil.mdp "+path+"mini2", shell=True).wait()
+    Popen("cp /home/REMD/src/md_good.mdp "+path+"REMD", shell=True).wait()
+    Popen(gmx+" editconf -f "+path+"mini1/peptide.gro -o "+path+"mini1/center_mini_systeme.gro  -bt cubic -d 1.0 -c yes", shell=True).wait()
+    Popen(gmx+" grompp -f "+path+"mini1/minim_good.mdp -p "+path+"mini1/*.top -c "+path+"mini1/center_mini_systeme.gro -o "+path+"mini1/mini1.tpr", shell=True).wait()
+    Popen(gmx+" mdrun -deffnm "+path+"mini1/mini1", shell=True).wait()
+    Popen("cp "+path+"mini1/mini1.gro "+path+"mini2/mini1.gro", shell=True).wait()
+    Popen("cp "+path+"mini1/*.top "+path+"mini2/", shell=True).wait()
+    Popen("cp "+path+"mini1/*.itp "+path+"mini2/", shell=True).wait()
 
 
 
-
-################################################################################
-
-# Install AmberTools (version 18)
-
-  # Download from RPBS OwnCloud
-RUN wget https://owncloud.rpbs.univ-paris-diderot.fr:443/owncloud/index.php/s/5yoyGkC9bbadNJ0/download && mv download amber18.tar.gz
-
-RUN tar -zxvf amber18.tar.gz -C /
-WORKDIR /amber18
-RUN export AMBERHOME=`pwd`
-#######A automatiser ces lignes de commandes########
-RUN yes | ./configure gnu
-RUN /bin/bash -c "source /amber18/amber.sh"
-RUN make install
-RUN echo "source /amber18/amber.sh" >> ~/.bashrc 
-
-#RUN chmod 744 install_amber.sh
-
-RUN rm /amber18.tar.gz
-WORKDIR /home/REMD/
-
-################################################################################
+def equilibration(path="./"):
+    #os.chdir(path)
+    print("Equilibration")
+    for i in range(len(refTemp)):
+        Popen("sed \"s|ref_t = 300 ; .*|ref_t = "+str(refTemp[i])+" ;|\" "+path+"mini2/Equil.mdp>"+path+"mini2/Equil_"+str(i)+".mdp", shell=True).wait()
+        Popen(gmx+" grompp -f "+path+"mini2/Equil_"+str(i)+".mdp -c "+path+"mini2/mini1.gro -p "+path+"mini2/*.top -o "+path+"mini2/Equil_"+str(i)+".tpr", shell=True).wait()
+        Popen(gmx+" mdrun -v -deffnm "+path+"mini2/Equil_"+str(i), shell=True).wait()
+    Popen("cp "+path+"mini2/Equil_* "+path+"REMD", shell=True).wait()
+    Popen("cp "+path+"mini2/*.top "+path+"REMD", shell=True).wait()
 
 
+def REMD(refTemp, path="./"):
+    print("Time simulation given by the user {0}".format(arg.time))
+    Popen("sed -i \"s|nsteps = 100000000 .*|nsteps = "+str(arg.time*500)+" ;|\" "+path+"REMD/md_good.mdp", shell=True).wait()
+    for i in range(len(refTemp)):
+        Popen("sed \"s|ref_t = 300 .*|ref_t = "+str(refTemp[i])+" ;|\" "+path+"REMD/md_good.mdp>"+path+"REMD/md_good_"+str(i)+".mdp", shell=True).wait()
+        Popen(gmx+" grompp -f "+path+"REMD/md_good_"+str(i)+".mdp -c "+path+"REMD/Equil_"+str(i)+".gro -p "+path+"REMD/*.top -o "+path+"REMD/md_good1_"+str(i)+".tpr -t "+path+"REMD/Equil_"+str(i)+".cpt", shell=True).wait()
+        Popen("rm "+path+"REMD/*#", shell=True).wait()
+    print("utilisation de {0} replica".format(len(refTemp)))
+    #command
+    cmd = "mpirun -np "+str(len(refTemp))+" --allow-run-as-root "+gmx+" mdrun -s "+path+"REMD/md_good1_ -deffnm "+path+"REMD/md_good1_ -replex 500 -multi "+str(len(refTemp))
+    Popen(cmd, shell=True).wait()
 
-#Une fois que ambertools a été installé
-#RUN /amber18/miniconda/bin/conda install -c omnia mdtraj pyemma -y
-#RUN python -mpip install -U pip
-#RUN python -mpip install -U matplotlib
-#RUN python -mpip install numpy mdtraj 
-#RUN python -mpip install pyemma
 
 
-################################################################################
+parser = argparse.ArgumentParser(description='topology fie (GRO,PDB)')
+parser.add_argument('-g', action="store", dest="g", type=str, help="pdb file")
+parser.add_argument('-p', action="store", dest="p", type=str, default = None, help="topology file")
+parser.add_argument('-cyclic', action="store", dest="cyclic",default=False, type=bool, help="flag for cyclic peptide")
+parser.add_argument('-temperature', action="store", dest="temp",default=None, type=str, help="\"300 313 329 347 367 391 418 450\"")
+parser.add_argument('-time', action="store", dest="time",default=200000, type=int, help="Time simulation (ps)")
+parser.add_argument('-log', action="store", dest="log", type=str,\
+ default = "clust.log", help="log file's name: default clust.log")
+parser.add_argument('-o', action="store", dest="o", type=str, \
+default = None, help="output path filename ")
+parser.add_argument('-seq', action="store", dest="s", type=str, help="sequence file", default= None)
 
-# Cleanup
-RUN apt-get autoremove -qy && \
-apt-get clean && \
-rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+arg = parser.parse_args()
+print(arg)
+pdb = arg.g
+sequence = arg.s
+topology = arg.p
+if arg.o is None:
+    outputs = os.getcwd()+"/"+str(random.randint(10000,99999))+"/"
+#sequence = "seq-example.txt"
+else:
+    outputs = arg.o
 
-#Execute 
-WORKDIR /home/REMD/src/scwrl3_lin/
-RUN ./setup
-WORKDIR /home/REMD/
-#sudo docker pull continuumio/anaconda
-#sudo docker run -it --rm continuumio/anaconda /bin/bash
-#sudo conda install -c omnia pyemma
-
-# Add sudo
-#RUN apt-get -y install sudo
-
-# Add user ubuntu with no password, add to sudo group
-#RUN adduser --disabled-password --gecos '' ubuntu
-#RUN adduser ubuntu sudo
-#RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
-#USER ubuntu
-#WORKDIR /home/ubuntu/
-#RUN chmod a+rwx /home/ubuntu/
-#RUN echo `pwd`
-
-# Anaconda installing
-RUN wget https://repo.continuum.io/archive/Anaconda3-5.0.1-Linux-x86_64.sh
-RUN bash Anaconda3-5.0.1-Linux-x86_64.sh -b
-RUN rm Anaconda3-5.0.1-Linux-x86_64.sh
-
-# Set path to conda
-ENV PATH /root/anaconda3/bin:$PATH
-ENV PATH /home/ubuntu/anaconda3/bin:$PATH
-RUN echo "y" | conda install -c omnia pyemma
-################################################################################
-####Pour régler les soucis avec matplotlib
-RUN apt-get update
-RUN apt-get install -y libgl1-mesa-dev
+if arg.s is not None:
+    print("Structure creation...")
+    parseSeq(arg.s, outputs)
+    for elmt in glob.glob(outputs+"seqLibrary/*.txt"):
+        newfolder=elmt.split("/")[-1][:-4]
+        MakePeptideGreatAgain(scwrl, elmt, arg.cyclic, outputs)
+        pdb = "ref"+newfolder+".pdb"
+        #new foldders for each peptides
+        subfold = outputs+newfolder+"/"
+        os.makedirs(subfold)
+        Popen("mv "+outputs+pdb+" "+subfold, shell=True).wait()
+        #Check if there is some D- amino acid
+        if newfolder.isupper() is not True:
+            ind = [] #position of the D- amino acid
+            #convert L- amino acid to D- amino acid 
+            #Except proline (they are not convert to D form)
+            for i in range(len(newfolder)):
+                if newfolder[i].islower():
+                    ind.append(i+1) #first residue is 1 in amber
+            cmd = gmx+" editconf -f "+subfold+pdb+" -resnr 1 -o "+subfold+pdb
+            Popen(cmd, shell=True).wait()
+            ChangeChirality(pdb, ind, leap, outputs, subfold)
+            #Replace amino acid to D-proline
+            for i in range(len(newfolder)):
+                if newfolder[i].islower() and newfolder[i].islower() == "p":
+                    print("D-Pro in position {0}".format(i+1))
+                    PutThatDpro(subfold+pdb, "/home/REMD/src/scwrl3_lin/patron_D-pro.pdb", int(i+1))
+        if pdb[-3:] != "pdb":
+                print("No PDB found")
+                sys.exit(0)
+        if topology is None:
+                makeTopology(pdb, arg.cyclic, gmx, leap, acpype, "amber96", subfold)
+        if arg.temp is None:
+            print("No temperature given...\n")
+            print("Final files:\nTopology: {0}\nStructure: {1}\n".format(topology, pdb))
+            continue
+        elif len(arg.temp) <= 1:
+            print("Need more than 1 temperature to do REMD\n")
+            continue
+        refTemp = arg.temp.split()
+        minimization(subfold)
+        equilibration(subfold)
+        REMD(refTemp, subfold)
+        Popen("rm "+subfold+"*#", shell=True).wait()
+        os.makedirs(subfold+"analyze/")
+        Popen("cp "+subfold+"REMD/md_good1_0* "+subfold+"analyze/", shell=True).wait()
+        print("python /home/REMD/scripts/analyze_REMD/free_energy_map.py -f "+subfold+"analyse/md_good1_0.xtc -s "+subfold+"analyze/md_good1_0.tpr -g "+subfold+"analyze/md_good1_0.gro -o "+subfold+"analyze/")
+        os.system("python /home/REMD/scripts/analyse_REMD/free_energy_map.py -f "+subfold+"analyze/md_good1_0.xtc -s "+subfold+"analyze/md_good1_0.tpr -g "+subfold+"analyze/md_good1_0.gro -o "+subfold+"analyze/free_energy_map/")
+        os.system("python /home/REMD/scripts/analyse_REMD/clust_reg_space.py -f "+subfold+"analyze/md_good1_0.xtc -g "+subfold+"analyze/md_good1_0.gro -o "+subfold+"analyze/reg_space/")
