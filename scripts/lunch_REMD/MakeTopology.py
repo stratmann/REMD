@@ -7,6 +7,7 @@ import sys
 import re
 import time
 import os
+import Bio.PDB
 
 RgFlagCat = re.compile('^\[ [a-z]+ \]')
 RgFlagDefault = re.compile('\[ defaults \]')
@@ -99,8 +100,6 @@ def CorrectDihedral(topfile1):
                     flag = False
 
 
-
-
 def CorrectFirstRes(groFile):
     with open(groFile, "r") as file:
         for line in file:
@@ -113,6 +112,97 @@ def CorrectFirstRes(groFile):
                 else:
                     print("Improper dihedral correction")
                     return True
+
+
+
+def numb(resid):
+    resid = str(resid)
+    while(len(resid) < 4):
+        resid = " "+resid
+    return resid
+    
+
+def ChangePDB(filin, new_aa, Pro2Swap):
+    """
+    Replace amino acid coordinate by the one in new_aa
+    """
+    newPDB = ""
+    with open(filin, "r") as pdb:
+        for line in pdb:
+            if line.split()[0] == "CONECT":
+                continue
+            if line.split()[0] != "ATOM":
+                newPDB += line
+            elif int(line[22:26]) == Pro2Swap and line[12:16].replace(" ", "") == "N":
+                #open the new_aa
+                with open(new_aa, "r") as newproline:
+                    for line2 in newproline:
+                        if line2.split()[0] == "ATOM":
+                            newPDB += line2[:22]+numb(Pro2Swap)+line2[26:]
+            elif int(line[22:26]) == Pro2Swap:
+                continue
+            else:
+                newPDB += line
+    #Export the newPDB
+    with open(filin, "w") as filout:
+    #with open("test.pdb", "w") as filout:
+        filout.write(newPDB)
+    print(newPDB)
+
+
+
+
+
+def PutThatDpro(pdb, patron, Pro2Swap):
+    """
+    Swapp amino acid to D-proline 
+    Arguments:
+        _pdb: structure you want to modify
+        _patron: D-proline model use
+        _Pro2Swap:  residue you want to change
+    Return:
+        _pdb file: D-proline's new coordinate (that
+    Source code:
+    #http://combichem.blogspot.com/2013/08/aligning-pdb-structures-with-biopython.html
+    """
+    pdb_parser = Bio.PDB.PDBParser(QUIET = True)
+    peptide = pdb_parser.get_structure("reference", pdb)
+    Dpro = pdb_parser.get_structure("Dpro", patron)
+    ref_model = peptide[0]
+    patron_model = Dpro[0]
+    # Make a list of the atoms (in the structures) you wish to align.
+    # In this case we use CA atoms whose index is in the specified range
+    ref_atoms = []
+    sample_atoms = []
+    # Iterate of all chains in the model in order to find all residues
+    for ref_chain in ref_model:
+        # Iterate of all residues in each model in order to find proper atoms
+        for ref_res in ref_chain:
+            print(ref_res.get_id()[1])
+            # Check if residue number ( .get_id() ) is in the list
+            if ref_res.get_id()[1] in np.array([Pro2Swap]):
+                # Append backbone atoms to list
+                ref_atoms.append(ref_res['N'])
+                ref_atoms.append(ref_res['CA'])
+                ref_atoms.append(ref_res['C'])
+    # Do the same for the sample structure
+    for sample_chain in patron_model:
+        for sample_res in sample_chain:
+            if sample_res.get_id()[1] in np.array([1]):
+                sample_atoms.append(sample_res['N'])
+                sample_atoms.append(sample_res['CA'])
+                sample_atoms.append(sample_res['C'])
+    # Now we initiate the superimposer:
+    super_imposer = Bio.PDB.Superimposer()
+    super_imposer.set_atoms(ref_atoms, sample_atoms)
+    super_imposer.apply(patron_model.get_atoms())
+    # Print RMSD:
+    print(super_imposer.rms)
+    io = Bio.PDB.PDBIO()
+    io.set_structure(patron_model) 
+    io.save("newD-pro.pdb")
+    ChangePDB(pdb, "newD-pro.pdb", Pro2Swap)
+
 
 def ParseCA(pdb):
     cpt = 0
@@ -153,8 +243,22 @@ def ChangeChirality(pdb, residues, tleap, outputs="./", subfold="./"):
     Popen("tleap -f chirality.leap", shell=True).wait()
     os.chdir(outputs)
 
+def removeH(structure):
+    newPDB =""
+    with open(structure, "r") as pdb:
+        for line in pdb:
+            if line.split()[0] != "ATOM":
+                newPDB += line
+            elif line[12:16].find("H") >= 0:
+                #print(line[12:16])
+                continue
+            else:
+                newPDB += line
+    with open("pept-H.pdb", "w") as filout:
+    #with open("test.pdb", "w") as filout:
+        filout.write(newPDB)
 
-def makeTopology(structure, peptide, gmx, tleap, acpype, forcefield, output = "./"):
+def makeTopology(structure, peptide, gmx, tleap, acpype, forcefield, output = "./", debug = False):
     """
     Generate topopoly files for gromacs from intial structure
     Arguments:
@@ -162,6 +266,7 @@ def makeTopology(structure, peptide, gmx, tleap, acpype, forcefield, output = ".
         _peptide: Flag to specify if the peptide is cyclic or not
         _gmx: path for gromacs
         _tleap: path for leap
+        _debug: Keep all output
     """
     os.chdir(output)
     if peptide == False:
@@ -172,7 +277,8 @@ def makeTopology(structure, peptide, gmx, tleap, acpype, forcefield, output = ".
     else:
         print("Cyclic peptide")
         #First step we remove hhydrogen
-        Popen("grep -v 'H' "+structure+" > pept-H.pdb", shell=True).wait()
+        #Popen("grep -v 'H' "+structure+" > pept-H.pdb", shell=True).wait()
+        removeH(structure)
         #Atoms's number beging at 1
         Popen(gmx+" editconf -f pept-H.pdb -o pept-good.pdb -resnr 1", shell=True).wait()
         residue = ParseCA("pept-good.pdb")
@@ -192,12 +298,13 @@ def makeTopology(structure, peptide, gmx, tleap, acpype, forcefield, output = ".
         print("generate amber's topology")
         Popen("tleap -f script.leap", shell=True).wait()
         #delete unacessary files
-        Popen("rm pept-H.pdb pept-good.pdb pept_amber.pdb", shell=True).wait()
+        #Popen("rm pept-H.pdb pept-good.pdb pept_amber.pdb", shell=True).wait()
         Popen(acpype+" -x pept_amber.inpcrd -p pept_amber.prmtop", shell=True).wait()
         #If the first residu is a proline, no need to correct topology file
         NewFile = ReadTopFile("pept_amber_GMX.top")
         WriteNewFile("pept_amber_GMX.top", NewFile)
-        Popen("rm pept_amber.inpcrd pept_amber.prmtop pept_amber_GMX.top", shell=True).wait()
+        if debug is False:
+            Popen("rm pept_amber.inpcrd pept_amber.prmtop pept_amber_GMX.top pept-H.pdb pept-good.pdb pept_amber.pdb", shell=True).wait()
         if CorrectFirstRes("pept_amber_GMX.gro"):
             CorrectDihedral("pept_amber_GMX_corrected.top")
         Popen("mv pept_amber_GMX.gro peptide.gro", shell=True).wait()
