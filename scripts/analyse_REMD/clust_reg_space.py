@@ -177,13 +177,16 @@ if __name__ == '__main__':
                     #logfile(logfile, line)
 
 
-    np.savetxt(arg.o+'_angles4_clustCentersFrameNo.txt', clustCentersFrameNo, fmt='%d')
+    #np.savetxt(arg.o+'_angles4_clustCentersFrameNo.txt', clustCentersFrameNo, fmt='%d')
     t = md.load(traj, top=topfile)
     #check results:
     #print(clustCentersFrameNo)
-    print('cluster no., centroid, nb_elemnt, pourcentage')
-    for i in range(len(clustCenters)):
-        pourcentage = np.shape(indexClusters[i])[0] *100.0/len(Sspace[0])
-        if pourcentage > 5:
-            print(i, clustCentersFrameNo[i], np.shape(indexClusters[i])[0], np.round(pourcentage,2))
-            t[clustCentersFrameNo[i]].save_pdb(arg.o+"centroid_clust"+str(i)+".pdb")
+    with open(arg.o+'angles4_clustCentersFrameNo.txt', "w") as filout:
+        #print('cluster no., centroid, nb_elemnt, pourcentage')
+        filout.write('cluster no., centroid, nb_elemnt, pourcentage\n')
+        for i in range(len(clustCenters)):
+            pourcentage = np.shape(indexClusters[i])[0] *100.0/len(Sspace[0])
+            if pourcentage > 5:
+                #print(i, clustCentersFrameNo[i], np.shape(indexClusters[i])[0], np.round(pourcentage,2))
+                filout.write(str(i)+','+str(clustCentersFrameNo[i])+','+str(np.shape(indexClusters[i])[0])+','+str( np.round(pourcentage,2) )+'\n' )
+                t[clustCentersFrameNo[i]].save_pdb(arg.o+"centroid_clust"+str(i)+".pdb")
