@@ -137,4 +137,5 @@ if arg.s is not None:
         Popen("cp "+subfold+"REMD/md_good1_0* "+subfold+"analyze/", shell=True).wait()
         print("python /home/REMD/scripts/analyze_REMD/free_energy_map.py -f "+subfold+"analyse/md_good1_0.xtc -s "+subfold+"analyze/md_good1_0.tpr -g "+subfold+"analyze/md_good1_0.gro -o "+subfold+"analyze/")
         os.system("python /home/REMD/scripts/analyse_REMD/free_energy_map.py -f "+subfold+"analyze/md_good1_0.xtc -s "+subfold+"analyze/md_good1_0.tpr -g "+subfold+"analyze/md_good1_0.gro -o "+subfold+"analyze/free_energy_map/")
-        os.system("python /home/REMD/scripts/analyse_REMD/clust_reg_space.py -f "+subfold+"analyze/md_good1_0.xtc -g "+subfold+"analyze/md_good1_0.gro -o "+subfold+"analyze/reg_space/")
+        Popen("cp "+subfold+"analyze/free_energy_map/ex_md.xtc "+subfold+"analyze/, shell=True).wait()
+        os.system("python /home/REMD/scripts/analyse_REMD/clust_reg_space.py -f "+subfold+"analyze/ex_md.xtc -g "+subfold+"analyze/md_good1_0.gro -o "+subfold+"analyze/reg_space/")
