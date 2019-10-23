@@ -66,14 +66,14 @@ WORKDIR /
 
 
 RUN mkdir -p /home/REMD/data /home/REMD/output/
-RUN mkdir -p /home/REMD/scripts/lunch_REMD/ /home/REMD/scripts/analyse_REMD
+RUN mkdir -p /home/REMD/scripts/launch_REMD/ /home/REMD/scripts/analyse_REMD
 RUN mkdir -p /home/REMD/src/acpype/
 RUN mkdir -p /home/REMD/src/scripts/
 
 COPY ./data/seq*.txt /home/REMD/data/
 COPY ./data/RGDpV.pdb /home/REMD/data/RGDpV.pdb
 
-COPY ./scripts/lunch_REMD/*.py /home/REMD/scripts/lunch_REMD/
+COPY ./scripts/launch_REMD/*.py /home/REMD/scripts/launch_REMD/
 COPY ./scripts/analyse_REMD/*.py /home/REMD/scripts/analyse_REMD/
 COPY ./parameters/*.mdp /home/REMD/src/
 COPY ./src/acpype/* /home/REMD/src/acpype/
