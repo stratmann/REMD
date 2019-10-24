@@ -71,7 +71,7 @@ parser.add_argument('-g', action="store", dest="g", type=str, help="pdb file")
 parser.add_argument('-p', action="store", dest="p", type=str, default = None, help="topology file")
 parser.add_argument('-cyclic', action="store", dest="cyclic",default=False, type=bool, help="flag for cyclic peptide")
 parser.add_argument('-temperature', action="store", dest="temp",default=None, type=str, help="\"300 313 329 347 367 391 418 450\"")
-parser.add_argument('-time', action="store", dest="time",default=200000, type=int, help="Time simulation (ps)")
+parser.add_argument('-time', action="store", dest="time",default=1500000, type=int, help="Time simulation (ps)")
 parser.add_argument('-log', action="store", dest="log", type=str,\
  default = "clust.log", help="log file's name: default clust.log")
 parser.add_argument('-o', action="store", dest="o", type=str, \
