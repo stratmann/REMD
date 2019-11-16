@@ -77,7 +77,7 @@ If you want to create a cyclic peptide you have to use the flag -cyclic
 ```
 python main.py -seq seq.txt -cyclic True
 ```
-To lunch REMD you must provide temperature for replica:
+To lunch REMD you must provide time simulation and temperature for replica:
 ```
 python main.py -seq seq.txt -temperature "300 318 337.97 358.81 380.85 404.27 429.12 455.50"
 ```
