@@ -120,7 +120,7 @@ def numb(resid):
     while(len(resid) < 4):
         resid = " "+resid
     return resid
-    
+
 
 def ChangePDB(filin, new_aa, Pro2Swap):
     """
@@ -155,7 +155,7 @@ def ChangePDB(filin, new_aa, Pro2Swap):
 
 def PutThatDpro(pdb, patron, Pro2Swap):
     """
-    Swapp amino acid to D-proline 
+    Swapp amino acid to D-proline
     Arguments:
         _pdb: structure you want to modify
         _patron: D-proline model use
@@ -199,7 +199,7 @@ def PutThatDpro(pdb, patron, Pro2Swap):
     # Print RMSD:
     print(super_imposer.rms)
     io = Bio.PDB.PDBIO()
-    io.set_structure(patron_model) 
+    io.set_structure(patron_model)
     io.save("newD-pro.pdb")
     ChangePDB(pdb, "newD-pro.pdb", Pro2Swap)
 
@@ -258,6 +258,49 @@ def removeH(structure):
     #with open("test.pdb", "w") as filout:
         filout.write(newPDB)
 
+def MadeTleapScript4Cyclic(tleap, output, residue, cyx):
+    with open(output, "w") as filin:
+        filin.write("source "+tleap)
+        filin.write("\nset default PBradii bondi")
+        filin.write("\nclearpdbresmap")
+        filin.write("\nmol = loadpdb pept-good.pdb")
+        print("\nbond mol.1.N mol."+residue+".C")
+        filin.write("\nbond mol.1.N mol."+residue.strip(" ")+".C")
+        if len(cyx) > 0:
+            filin.write("\nbond mol."+str(cyx[0])+".SG mol."+str(cyx[1])+".SG")
+        filin.write("\nsaveamberparm mol pept_amber.prmtop pept_amber.inpcrd")
+        filin.write("\nsavepdb mol pept_amber.pdb")
+        filin.write("\nquit")
+    print("generate amber's topology")
+
+
+def MadeTleapScript4Linear(tleap, output, cyx, structure):
+    with open(output, "w") as filin:
+        filin.write("source "+tleap)
+        filin.write("\nset default PBradii bondi")
+        filin.write("\nclearpdbresmap")
+        filin.write("\nmol = loadpdb "+structure)
+        print("\nbond mol."+str(cyx[0])+".SG mol."+str(cyx[1])+".SG")
+        filin.write("\nbond mol."+str(cyx[0])+".SG mol."+str(cyx[1])+".SG")
+        filin.write("\nsaveamberparm mol pept_amber.prmtop pept_amber.inpcrd")
+        filin.write("\nsavepdb mol pept_amber.pdb")
+        filin.write("\nquit")
+    print("generate amber's topology")
+
+def cyxInPDB(structure):
+    """
+    Return residue's number of all the CYX
+    """
+    cyx = []
+    with open(structure, "r") as filin:
+        for line in filin:
+            if line.split()[0] != "ATOM":
+                continue
+            elif line.split()[2] == "CA" and line.split()[3] == "CYX":
+                cyx.append(int(line[22:26]))
+    return cyx
+
+
 def makeTopology(structure, peptide, gmx, tleap, acpype, forcefield, output = "./", debug = False):
     """
     Generate topopoly files for gromacs from intial structure
@@ -269,11 +312,25 @@ def makeTopology(structure, peptide, gmx, tleap, acpype, forcefield, output = ".
         _debug: Keep all output
     """
     os.chdir(output)
+    cyx = cyxInPDB(structure)
     if peptide == False:
         print("No cyclic peptide")
-        cmd = gmx+" pdb2gmx -p peptide.top -ignh yes -ff "+forcefield+" -water none\
-     -o peptide.gro -f "+structure
-        Popen(cmd, shell=True).wait()
+        #check if there is disulfure bonds
+        if len(cyx) > 0:
+            print("ADD disulfure bond !!!")
+            MadeTleapScript4Linear(tleap, "script.leap", cyx, structure)
+            Popen("tleap -f script.leap", shell=True).wait()
+            Popen(acpype+" -x pept_amber.inpcrd -p pept_amber.prmtop", shell=True).wait()
+            NewFile = ReadTopFile("pept_amber_GMX.top")
+            WriteNewFile("pept_amber_GMX.top", NewFile)
+            Popen("mv pept_amber_GMX.gro peptide.gro", shell=True).wait()
+            Popen("mv pept_amber_GMX_corrected.top peptide.top", shell=True).wait()
+            Popen("rm pept_amber.inpcrd pept_amber.prmtop pept_amber_GMX.top pept-H.pdb pept-good.pdb pept_amber.pdb", shell=True).wait()
+        #if not. Generate topology files with gromacs
+        else:
+            cmd = gmx+" pdb2gmx -p peptide.top -ignh yes -ff "+forcefield+" -water none\
+-o peptide.gro -ter yes -f "+structure
+            Popen(cmd, shell=True).wait()
     else:
         print("Cyclic peptide")
         #First step we remove hhydrogen
@@ -285,17 +342,7 @@ def makeTopology(structure, peptide, gmx, tleap, acpype, forcefield, output = ".
         #Create leap script to generate amber topology files
         #gromacs can not make correct topology file for cyclic peptide)
         print("generate script for amber")
-        with open("script.leap", "w") as filin:
-            filin.write("source "+tleap)
-            filin.write("\nset default PBradii bondi")
-            filin.write("\nclearpdbresmap")
-            filin.write("\nmol = loadpdb pept-good.pdb")
-            print("\nbond mol.1.N mol."+residue+".C")
-            filin.write("\nbond mol.1.N mol."+residue.strip(" ")+".C")
-            filin.write("\nsaveamberparm mol pept_amber.prmtop pept_amber.inpcrd")
-            filin.write("\nsavepdb mol pept_amber.pdb")
-            filin.write("\nquit")
-        print("generate amber's topology")
+        MadeTleapScript4Cyclic(tleap, "script.leap", residue, cyx)
         Popen("tleap -f script.leap", shell=True).wait()
         #delete unacessary files
         #Popen("rm pept-H.pdb pept-good.pdb pept_amber.pdb", shell=True).wait()

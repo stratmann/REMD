@@ -9,13 +9,21 @@ import sys
 import shutil
 
 
-code = {'ALA': 'A', 'ARG': 'R', 'ASN': 'N', 'ASP': 'D', 'CYS': 'C', 'GLN': 'Q',
-        'GLU': 'E', 'GLY': 'G', 'HIS': 'H', 'ILE': 'I', 'LEU': 'L', 'LYS': 'K',
-        'MET': 'M', 'PHE': 'F', 'PRO': 'P', 'SER': 'S', 'THR': 'T', 'TRP': 'W',
-        'TYR': 'Y', 'VAL': 'V'}
+
+
+code = ["A", "R", "N", "D", "C", "Q", "E", "G", "H", "I", "L", "K", "M",
+"F", "P", "S", "T", "W", "Y", "V", "X"] #X corresponding to cystein with
+#                                       with disulfure bridge
 
 
 def parseSeq(fichier, path):
+    """
+    Read text and take amino acid sequences
+    Check if the amino acid exit or not
+    Arguments:
+        fichier: file countaining amino acid sequences
+        path: where output are stored
+    """
     path = path+'seqLibrary/'
     if os.path.exists(path):
         shutil.rmtree(path)
@@ -24,36 +32,50 @@ def parseSeq(fichier, path):
     flag_seq = True
     with open(fichier, 'r') as lines:
         for line in lines:
-            items = line.split()
-            #check if the first arguments is the amino acid's number
+            seqname = ""
+            seq_pept = line.split('\n')[0] #only the sequence
             if flag_seq:
-                if items[0] != "1":
-                    print("Format not good :(\nThe first id is not 1")
+                if len(seq_pept) < 4:
+                    print("Peptide too short\n")
                     sys.exit()
                 flag_seq = False
-            if len(seqences) == 0:
-                for i in range(1,len(items)):
-                    seqences[i] = [items[i]]
-            else:
-                for i in range(1,len(items)):
-                    seqences[i].append(items[i])
-    #Convert code 3 letters to 1 letters
-    for i in seqences.keys():
-        seqname = ""
-        for amino_acid in seqences[i]:
-            if amino_acid.isupper() and amino_acid in code:
-                seqname += code[amino_acid]
-            elif amino_acid.islower() and amino_acid.upper() in code:
-                seqname += code[amino_acid.upper()].lower()
-                #seqname += code[amino_acid.upper()]
-                #D- amino acid not yet implemented
-            else:
-                print("Amino acid not know\n")
-        fo = open(path + seqname + ".txt", 'w')
-        print("seqence {0}: {1}\n".format(i, seqname.upper()))
-        fo.write(seqname.upper() + "\n")
-        fo.close()
+            for aa in seq_pept:
+                #Check if the amino acid are correct
+                if aa.upper() in code:
+                    seqname += aa
+                else:
+                    print("Sorry letter {0} is not a amino acid".format(aa))
+                    sys.exit()
+            fo = open(path + seqname + ".txt", 'w')
+            #print("seqence {0}: {1}\n".format(i, seqname.upper()))
+            fo.write(seqname.upper().replace("X", "C") + "\n") #For cycstein
+            fo.close()
 
+def cys2modify(peptide):
+    """
+    Read amino acid sequence and return position of X
+    """
+    print("Sequence : {0}".format(peptide))
+    cyx = [] #residues to modify
+    for i in range(len(peptide)):
+        if peptide[i].upper() == "X":
+            cyx.append(i+1) #sequence beging to 1
+    return cyx
+
+def cys2cyx(structure, cyx):
+    lines = ""
+    with open(structure, "r") as filin:
+        for line in filin:
+            if line.split()[0] != "ATOM":
+                lines += line
+                continue
+            elif int(line.split()[5]) in cyx:
+                lines += line.replace("CYS","CYX")
+            else:
+                lines += line
+
+    with open(structure, "w") as filin:
+        filin.write(lines)
 
 def MakePeptideGreatAgain(scwrl, seq, cyclicPept, output="./"):
     """
@@ -68,11 +90,17 @@ def MakePeptideGreatAgain(scwrl, seq, cyclicPept, output="./"):
     else:
         refbackbone ="/home/REMD/src/scwrl3_lin/LinearPeptide/"+lenPeptide+".pdb"
     peptide = seq.split("/")[-1][:-4]
+    #tmp_pept = seq.replace("x","c").replace("X","C")
     Popen(scwrl+" -i "+refbackbone+" -s "+seq+" -o "+output+"ref"+peptide+".pdb", shell=True).wait()
     print(scwrl+" -i "+refbackbone+" -s "+seq+" -o "+output+"ref"+peptide+".pdb")
     if os.path.exists(output+"ref"+peptide+".pdb") is True:
         print("peptide structure was made.")
-        return output+"ref"+peptide+".pdb"
+        structure = output+"ref"+peptide+".pdb"
+        #Modify pdb to add disulfure bonds (CYS to CYS)
+        if peptide.upper().find("X") >= 0:
+            cyx = cys2modify(peptide) #list of residues to modify
+            cys2cyx(structure, cyx)
+        return structure
     else:
         print("peptide structure was not made. :'('")
         sys.exit(0)

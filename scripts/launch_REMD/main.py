@@ -103,7 +103,7 @@ if arg.s is not None:
         #Check if there is some D- amino acid
         if newfolder.isupper() is not True:
             ind = [] #position of the D- amino acid
-            #convert L- amino acid to D- amino acid 
+            #convert L- amino acid to D- amino acid
             #Except proline (they are not convert to D form)
             for i in range(len(newfolder)):
                 if newfolder[i].islower():
