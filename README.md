@@ -75,7 +75,7 @@ python main.py -seq seq.txt
 ```
 If you want to create a cyclic peptide you have to use the flag -cyclic
 ```
-python main.py -seq seq.txt -cyclic True
+python main.py -seq seq-cyclic_peptide_baker.txt -cyclic True
 ```
 To lunch REMD you must provide time simulation and temperature for replica:
 ```
@@ -87,9 +87,12 @@ python main.py -seq seq.txt -temperature "300 318 337.97 358.81 380.85 404.27 42
 ```
 ##                               Output
 
-2 files:
+Files:
 * Log file (arguments used and other info)
-* PDB file contain the structures
+* PDB files contain the most populated structures
+* Free energy map
+* Tleap script for ambertools
+* All files generated with gromacs
 
 #                               Warning
 
