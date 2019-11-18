@@ -1,0 +1,32 @@
+TITLE     Gallium Rubidium Oxygen Manganese Argon Carbon Silicon
+MODEL        1
+ATOM      1  N   GLY A   1       5.344   4.048  -1.505  1.00  0.00           N
+ATOM      2  CA  GLY A   1       6.766   4.392  -1.669  1.00  0.00           C
+ATOM      3  C   GLY A   1       7.370   3.840  -2.970  1.00  0.00           C
+ATOM      4  O   GLY A   1       8.428   3.224  -2.938  1.00  0.00           O
+ATOM      5  HA2 GLY A   1       6.871   5.480  -1.683  1.00  0.00           H
+ATOM      6  HA3 GLY A   1       7.340   3.999  -0.826  1.00  0.00           H
+ATOM      7  H   GLY A   1       4.662   4.783  -1.608  1.00  0.00           H
+ATOM      8  N   GLY A   2       6.564   3.806  -4.038  1.00  0.00           N
+ATOM      9  CA  GLY A   2       6.733   2.907  -5.190  1.00  0.00           C
+ATOM     10  C   GLY A   2       5.877   1.637  -5.073  1.00  0.00           C
+ATOM     11  O   GLY A   2       5.243   1.247  -6.046  1.00  0.00           O
+ATOM     12  H   GLY A   2       5.671   4.263  -3.957  1.00  0.00           H
+ATOM     13  HA2 GLY A   2       7.778   2.603  -5.273  1.00  0.00           H
+ATOM     14  HA3 GLY A   2       6.454   3.429  -6.106  1.00  0.00           H
+ATOM     15  N   GLY A   3       5.639   1.183  -3.840  1.00  0.00           N
+ATOM     16  CA  GLY A   3       4.682   0.141  -3.464  1.00  0.00           C
+ATOM     17  C   GLY A   3       3.253   0.626  -3.145  1.00  0.00           C
+ATOM     18  O   GLY A   3       2.321   0.105  -3.743  1.00  0.00           O
+ATOM     19  H   GLY A   3       6.200   1.560  -3.085  1.00  0.00           H
+ATOM     20  HA2 GLY A   3       5.072  -0.380  -2.589  1.00  0.00           H
+ATOM     21  HA3 GLY A   3       4.614  -0.583  -4.276  1.00  0.00           H
+ATOM     22  N   GLY A   4       2.957   1.242  -1.988  1.00  0.00           N
+ATOM     23  CA  GLY A   4       3.413   2.565  -1.527  1.00  0.00           C
+ATOM     24  C   GLY A   4       4.912   2.794  -1.319  1.00  0.00           C
+ATOM     25  O   GLY A   4       5.682   1.864  -1.120  1.00  0.00           O
+ATOM     26  H   GLY A   4       2.007   1.036  -1.720  1.00  0.00           H
+ATOM     27  HA2 GLY A   4       3.049   3.315  -2.230  1.00  0.00           H
+ATOM     28  HA3 GLY A   4       2.935   2.779  -0.574  1.00  0.00           H
+TER
+ENDMDL
