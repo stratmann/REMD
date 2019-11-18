@@ -12,7 +12,7 @@ import random
 
 gmx="/usr/local/gromacs/bin/gmx_mpi"
 #path for the force field
-leap="/amber18/dat/leap/cmd/oldff/leaprc.ff96"
+leap="/amber18/dat/leap/cmd/oldff/leaprc."
 acpype="/home/REMD/src/acpype/acpype.py"
 scwrl="/home/REMD/src/scwrl3_lin/./scwrl3"
 
@@ -21,6 +21,8 @@ scwrl="/home/REMD/src/scwrl3_lin/./scwrl3"
 #leap="/home/jaysen/amber14/dat/leap/cmd/oldff/leaprc.ff96"
 #acpype="/bigdata/jaysen/Rapport_MAUD/Scripts/acpype/acpype.py"
 #scwrl="/bigdata/jaysen/these/github/Docker/REMD/src/scwrl3_lin/./scwrl3"
+
+leapFF={"amber96":"ff96", "amber99sb":"ff99SB", "amber99sb-ildn":"ff99SBildn", "amber03":"ff03"}
 
 
 def minimization(path="./"):
@@ -77,6 +79,9 @@ parser.add_argument('-log', action="store", dest="log", type=str,\
 parser.add_argument('-o', action="store", dest="o", type=str, \
 default = None, help="output path filename ")
 parser.add_argument('-seq', action="store", dest="s", type=str, help="sequence file", default= None)
+parser.add_argument('-ff', action="store", dest="ff", type=str, \
+default = "amber96", help="Force field use for the MD")
+
 
 arg = parser.parse_args()
 print(arg)
@@ -88,6 +93,12 @@ if arg.o is None:
 #sequence = "seq-example.txt"
 else:
     outputs = arg.o
+if arg.ff not in leapFF.keys():
+    #if the force field is not implemented, use amber96
+    leap += leapFF["amber96"]
+else:
+    leap += leapFF[arg.ff]
+
 
 if arg.s is not None:
     print("Structure creation...")
