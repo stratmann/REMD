@@ -49,7 +49,7 @@ pyemma
 By default, the user can provide a sequence file, the script will create a reference structure (PDB file)
 and a topology file. 
 To lunch the REMD users must provide also temperature reference (for each replic).
-Then a minimization, equilibration and md production with gromacs with the force field Amber 96 are made
+Then a minimization, equilibration and md production with gromacs with the force field Amber 96 (by default) are made
 ```
  main.py -seq seq.txt -temperature "300 318 337.97 358.81 380.85 404.27 429.12 455.50"
  
@@ -64,6 +64,8 @@ Then a minimization, equilibration and md production with gromacs with the force
  -o: output path filenamec (default current folder)
  -seq: file with amino acid sequence
  -log: Log file's name (file.log)
+ -ff: force filed use (default amber96)
+ -solvent: implicit solvent you wan (not yet implemented)
 ```
 
 ##                              Example
@@ -96,7 +98,7 @@ Files:
 
 #                               Warning
 
-The script use tleap (amberTools 18), acpype, GROMACS 5.1.2 and scwrl 3.0. If you don't use Docker, be sure the softwares are installed and modify path in the python scripts.
+The script use tleap (amberTools 18), acpype, GROMACS 5.1.2 and scwrl 3.0. If you don't use Docker, be sure softwares are installed and modify path in the python scripts.
 
 ##                              UPCOMING FEATURES
 
