@@ -33,9 +33,12 @@ def parseSeq(fichier, path):
     with open(fichier, 'r') as lines:
         for line in lines:
             if line[0] == "#":
+                #ignore comment lines
                 continue
             seqname = ""
             seq_pept = line.split('\n')[0] #only the sequence
+            if flag_seq[0] == "#":
+                continue
             if flag_seq:
                 if len(seq_pept) < 4:
                     print("Peptide too short\n")

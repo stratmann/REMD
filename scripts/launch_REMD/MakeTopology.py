@@ -328,7 +328,7 @@ def makeTopology(structure, peptide, gmx, tleap, acpype, forcefield, output = ".
             Popen("rm pept_amber.inpcrd pept_amber.prmtop pept_amber_GMX.top pept-H.pdb pept-good.pdb pept_amber.pdb", shell=True).wait()
         #if not. Generate topology files with gromacs
         else:
-            cmd = gmx+" pdb2gmx -p peptide.top -ignh yes -ff "+forcefield+" -water none\
+            cmd = gmx+" pdb2gmx -p peptide.top -ignh yes -ff "+forcefield+" -water none \
 -o peptide.gro -ter yes -f "+structure
             Popen(cmd, shell=True).wait()
     else:
