@@ -71,7 +71,6 @@ RUN mkdir -p /home/REMD/src/acpype/
 RUN mkdir -p /home/REMD/src/scripts/
 
 COPY ./data/seq*.txt /home/REMD/data/
-COPY ./data/RGDpV.pdb /home/REMD/data/RGDpV.pdb
 
 COPY ./scripts/launch_REMD/*.py /home/REMD/scripts/launch_REMD/
 COPY ./scripts/analyse_REMD/*.py /home/REMD/scripts/analyse_REMD/
