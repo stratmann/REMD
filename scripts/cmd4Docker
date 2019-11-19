@@ -11,5 +11,12 @@ sudo docker image rm e0d86536f16d acb43a636d45 d96c78409b80 4abffdcf762e
 #supprimez toutes les images
 sudo docker system prune --volumes
 
+
+#One liner to stop / remove all of Docker containers:
+docker stop $(docker ps -a -q)
+docker rm $(docker ps -a -q)
+
+
+
 Copying files from host to Docker container
 docker cp foo.txt mycontainer:/foo.txt
