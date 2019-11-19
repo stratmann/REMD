@@ -32,6 +32,8 @@ def parseSeq(fichier, path):
     flag_seq = True
     with open(fichier, 'r') as lines:
         for line in lines:
+            if line[0] == "#":
+                continue
             seqname = ""
             seq_pept = line.split('\n')[0] #only the sequence
             if flag_seq:
