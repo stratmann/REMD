@@ -37,7 +37,7 @@ def parseSeq(fichier, path):
                 continue
             seqname = ""
             seq_pept = line.split('\n')[0] #only the sequence
-            if flag_seq[0] == "#":
+            if seq_pept[0] == "#":
                 continue
             if flag_seq:
                 if len(seq_pept) < 4:
