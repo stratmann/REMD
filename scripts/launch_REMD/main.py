@@ -66,14 +66,28 @@ def REMD(refTemp, path="./"):
     cmd = "mpirun -np "+str(len(refTemp))+" --allow-run-as-root "+gmx+" mdrun -s "+path+"REMD/md_good1_ -deffnm "+path+"REMD/md_good1_ -replex 500 -multi "+str(len(refTemp))
     Popen(cmd, shell=True).wait()
 
+def lunch_REMD(path, refTEMP):
+    minimization(path)
+    equilibration(path)
+    REMD(refTemp,path)
+    Popen("rm "+path+"*#", shell=True).wait()
+
+def lunch_analyze(subfold):
+    os.makedirs(subfold+"analyze/")
+    Popen("cp "+subfold+"REMD/md_good1_0* "+subfold+"analyze/", shell=True).wait()
+    print("python /home/REMD/scripts/analyze_REMD/free_energy_map.py -f "+subfold+"analyse/md_good1_0.xtc -s "+subfold+"analyze/md_good1_0.tpr -g "+subfold+"analyze/md_good1_0.gro -o "+subfold+"analyze/")
+    os.system("python /home/REMD/scripts/analyse_REMD/free_energy_map.py -f "+subfold+"analyze/md_good1_0.xtc -s "+subfold+"analyze/md_good1_0.tpr -g "+subfold+"analyze/md_good1_0.gro -o "+subfold+"analyze/free_energy_map/")
+    Popen("cp "+subfold+"analyze/free_energy_map/ex_md.xtc "+subfold+"analyze/", shell=True).wait()
+    os.system("python /home/REMD/scripts/analyse_REMD/clust_reg_space.py -f "+subfold+"analyze/ex_md.xtc -g "+subfold+"analyze/md_good1_0.gro -o "+subfold+"analyze/reg_space/")
+
 
 
 parser = argparse.ArgumentParser(description='topology fie (GRO,PDB)')
-parser.add_argument('-g', action="store", dest="g", type=str, help="pdb file")
-parser.add_argument('-p', action="store", dest="p", type=str, default = None, help="topology file")
-parser.add_argument('-cyclic', action="store", dest="cyclic",default=False, type=bool, help="flag for cyclic peptide")
+parser.add_argument('-g', action="store", dest="g", type=str, default = None, help="pdb file (default None)")
+parser.add_argument('-p', action="store", dest="p", type=str, default = None, help="topology file (default None)")
+parser.add_argument('-cyclic', action="store", dest="cyclic",default=False, type=bool, help="flag for cyclic peptide (default False)")
 parser.add_argument('-temperature', action="store", dest="temp",default=None, type=str, help="\"300 313 329 347 367 391 418 450\"")
-parser.add_argument('-time', action="store", dest="time",default=1500000, type=int, help="Time simulation (ps)")
+parser.add_argument('-time', action="store", dest="time",default=1500000, type=int, help="Time simulation in ps (default 1,500,000 ps)")
 parser.add_argument('-log', action="store", dest="log", type=str,\
  default = "clust.log", help="log file's name: default clust.log")
 parser.add_argument('-o', action="store", dest="o", type=str, \
@@ -140,13 +154,24 @@ if arg.s is not None:
             print("Need more than 1 temperature to do REMD\n")
             continue
         refTemp = arg.temp.split()
-        minimization(subfold)
-        equilibration(subfold)
-        REMD(refTemp, subfold)
-        Popen("rm "+subfold+"*#", shell=True).wait()
-        os.makedirs(subfold+"analyze/")
-        Popen("cp "+subfold+"REMD/md_good1_0* "+subfold+"analyze/", shell=True).wait()
-        print("python /home/REMD/scripts/analyze_REMD/free_energy_map.py -f "+subfold+"analyse/md_good1_0.xtc -s "+subfold+"analyze/md_good1_0.tpr -g "+subfold+"analyze/md_good1_0.gro -o "+subfold+"analyze/")
-        os.system("python /home/REMD/scripts/analyse_REMD/free_energy_map.py -f "+subfold+"analyze/md_good1_0.xtc -s "+subfold+"analyze/md_good1_0.tpr -g "+subfold+"analyze/md_good1_0.gro -o "+subfold+"analyze/free_energy_map/")
-        Popen("cp "+subfold+"analyze/free_energy_map/ex_md.xtc "+subfold+"analyze/", shell=True).wait()
-        os.system("python /home/REMD/scripts/analyse_REMD/clust_reg_space.py -f "+subfold+"analyze/ex_md.xtc -g "+subfold+"analyze/md_good1_0.gro -o "+subfold+"analyze/reg_space/")
+        lunch_REMD(subfold, refTEMP)
+        lunch_analyze(subfold)
+else:
+    if arg.g is not None:
+        pdb = arg.g
+    if topology is None:
+        subfold = outputs
+        os.makedirs(subfold)
+        Popen("cp "+pdb+" "+subfold, shell=True).wait()
+        makeTopology(pdb, arg.cyclic, gmx, leap, acpype, "amber96", subfold)
+    if arg.temp is None:
+        print("No temperature given...\n")
+        print("Final files:\nTopology: {0}\nStructure: {1}\n".format(topology, pdb))
+        sys.exit()
+    elif len(arg.temp) <= 1:
+        print("Need more than 1 temperature to do REMD\n")
+        sys.exit()
+    else:
+        refTemp = arg.temp.split()
+        lunch_REMD(subfold, refTemp)
+        lunch_analyze(subfold)

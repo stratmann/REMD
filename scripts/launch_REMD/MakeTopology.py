@@ -313,7 +313,7 @@ def makeTopology(structure, peptide, gmx, tleap, acpype, forcefield, output = ".
     """
     os.chdir(output)
     cyx = cyxInPDB(structure)
-    if peptide == False:
+    if peptide is False:
         print("No cyclic peptide")
         #check if there is disulfure bonds
         if len(cyx) > 0:
