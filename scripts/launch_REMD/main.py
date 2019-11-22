@@ -154,7 +154,7 @@ if arg.s is not None:
             print("Need more than 1 temperature to do REMD\n")
             continue
         refTemp = arg.temp.split()
-        lunch_REMD(subfold, refTEMP)
+        lunch_REMD(subfold, refTemp)
         lunch_analyze(subfold)
 else:
     if arg.g is not None:
