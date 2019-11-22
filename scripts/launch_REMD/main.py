@@ -49,7 +49,8 @@ def equilibration(path="./"):
     for i in range(len(refTemp)):
         Popen("sed \"s|ref_t = 300 ; .*|ref_t = "+str(refTemp[i])+" ;|\" "+path+"mini2/Equil.mdp>"+path+"mini2/Equil_"+str(i)+".mdp", shell=True).wait()
         Popen(gmx+" grompp -f "+path+"mini2/Equil_"+str(i)+".mdp -c "+path+"mini2/mini1.gro -p "+path+"mini2/*.top -o "+path+"mini2/Equil_"+str(i)+".tpr", shell=True).wait()
-        Popen(gmx+" mdrun -v -deffnm "+path+"mini2/Equil_"+str(i), shell=True).wait()
+        #Popen(gmx+" mdrun -v -deffnm "+path+"mini2/Equil_"+str(i), shell=True).wait()
+    Popen("mpirun -np "+str(len(refTemp))+" -allow-run-as-root "+gmx+" mdrun -s "+path+"mini2/Equil_ -deffnm "+path+"mini2/Equil_ -multi 8", shell=True).wait()
     Popen("cp "+path+"mini2/Equil_* "+path+"REMD", shell=True).wait()
     Popen("cp "+path+"mini2/*.top "+path+"REMD", shell=True).wait()
 
