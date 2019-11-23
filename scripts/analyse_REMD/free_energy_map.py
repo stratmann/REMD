@@ -174,9 +174,6 @@ if __name__ == "__main__":
     PathOut = args.o
 
     cleanFolder(PathOut)
-    replica= "catall0.xtc"
-    struct = "md_good1_0.gro"
-    tpr = "md_good1_0.tpr"
 
     traj = md.load(replica, top=struct)
     topology = traj.topology
@@ -212,8 +209,9 @@ if __name__ == "__main__":
         rms = md.rmsd(traj, ref_struct, atom_indices=bb)*10
     else:
         ref_struct = md.load(args.stru4RMSD)
-        #topology2 = ref_struct.topology
-        #bb = topology2.select('name N or name CA or name C')
+        topology2 = ref_struct.topology
+        bb2 = topology2.select('name N or name CA or name C')
+        print("Superpose atoms:\n{0}\nwith\n{0}\n".format(bb,bb2))
         rms = md.rmsd(traj, ref_struct, atom_indices=bb)*10
         print("There is {0:.2f} %of conformation with a RMSD below 2.0 A".format(len(np.where(rms<2.0)[0])/len(rms)*100.0))
     #Convert in A
