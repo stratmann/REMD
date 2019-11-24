@@ -1,0 +1,92 @@
+Namespace(cyclic=True, ff='amber96', g=None, log='clust.log', o=None, p=None, s='/home/REMD/data/seq-cyclic_peptide_baker.txt', temp='300 318 337.97 358.81 380.85 404.27 429.12 455.50', time=200)
+Structure creation...
+
+SCWRL 3.0
+Copyright (c) 2003 Adrian A. Canutescu and Roland L. Dunbrack Jr.		   
+Fox Chase Cancer Center
+Philadelphia, PA, USA
+
+TotalNoOfResidues    10
+
+Reading Sequence file
+:::::::::::::::::::::
+Mutation GLY    10  ALA
+Mutation GLY     1  ALA
+Mutation GLY     2  ARG
+Mutation GLY     3  VAL
+Mutation GLY     4  PRO
+Mutation GLY     5  ARG
+Mutation GLY     6  LEU
+Mutation GLY     7  THR
+Mutation GLY     8  PRO
+Mutation GLY     9  GLU
+
+NoOfResWithOnlyOneLibraryRotamer     3
+
+Checking for disulfide bonds
+::::::::::::::::::::::::::::
+
+
+NoOfInteractionsMayClash      0
+LogCombinationsLibraryRotamers   4.51
+
+Entering Goldstein's DEE
+::::::::::::::::::::::::
+
+NoOfResiduesEnteringDEE      0
+NoOfRotamersEnteringDEE      0
+
+Log10CombinationsAfterDEE   0.00
+
+NoOfClusters    0
+NoOfResiduesInClusters    0
+
+/home/REMD/src/scwrl3_lin/./scwrl3 -i /home/REMD/src/scwrl3_lin/CyclicPeptide/10.pdb -s /home/REMD/23424/seqLibrary/AARvpRLTPE.txt -o /home/REMD/23424/refAARvpRLTPE.pdb
+peptide structure was made.
+Illegal instruction (core dumped)
+generate script for amber
+generate amber's topology
+-I: Adding /amber18/dat/leap/prep to search path.
+-I: Adding /amber18/dat/leap/lib to search path.
+-I: Adding /amber18/dat/leap/parm to search path.
+-I: Adding /amber18/dat/leap/cmd to search path.
+-f: Source chirality.leap.
+
+Welcome to LEaP!
+(no leaprc in search path)
+Sourcing: ./chirality.leap
+----- Source: /amber18/dat/leap/cmd/oldff/leaprc.ff96
+----- Source of /amber18/dat/leap/cmd/oldff/leaprc.ff96 done
+Log file: ./leap.log
+Loading parameters: /amber18/dat/leap/parm/parm96.dat
+Reading title:
+PARM96 for DNA, RNA and proteins with TIP3P Water. USE SCEE=1.2 in energy progs
+Loading library: /amber18/dat/leap/lib/all_nucleic94.lib
+Loading library: /amber18/dat/leap/lib/all_amino94.lib
+Loading library: /amber18/dat/leap/lib/all_aminoct94.lib
+Loading library: /amber18/dat/leap/lib/all_aminont94.lib
+Loading library: /amber18/dat/leap/lib/ions94.lib
+Loading library: /amber18/dat/leap/lib/solvents.lib
+Using Bondi radii
+Clearing name map.
+Loading PDB file: ./refAARvpRLTPE.pdb
+  total atoms in file: 77
+  Leap added 83 missing atoms according to residue templates:
+       83 H / lone pairs
+
+/amber18/bin/teLeap: Fatal Error!
+select: Argument #1 is type String must be of type: [unit molecule residue atom list]
+usage:  select <object>
+
+Exiting LEaP: Errors = 1; Warnings = 0; Notes = 0.
+Cyclic peptide
+Illegal instruction (core dumped)
+Traceback (most recent call last):
+  File "/home/REMD/scripts/launch_REMD/main.py", line 149, in <module>
+    makeTopology(pdb, arg.cyclic, gmx, leap, acpype, "amber96", subfold)
+  File "/home/REMD/scripts/launch_REMD/MakeTopology.py", line 341, in makeTopology
+    residue = ParseCA("pept-good.pdb")
+  File "/home/REMD/scripts/launch_REMD/MakeTopology.py", line 209, in ParseCA
+    with open(pdb, "r") as filin:
+FileNotFoundError: [Errno 2] No such file or directory: 'pept-good.pdb'
+
