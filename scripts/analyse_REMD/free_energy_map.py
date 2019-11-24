@@ -16,7 +16,9 @@ from subprocess import Popen, PIPE, STDOUT
 import argparse
 import mdtraj as md
 
-gmx = "/usr/local/gromacs/bin/gmx_mpi"
+
+gmx = "/commun/gromacs/512/bin/gmx"
+#gmx = "/usr/local/gromacs/bin/gmx_mpi"
 
 def parse_xvg(filexvg):
     """
@@ -78,6 +80,7 @@ def centroid(traj, frameClust, nb, output_folder):
 	traj[centroid].save_pdb(output_folder+"clust"+str(nb)+".pdb")
 
 
+
 def compute_effectif_cluster(ind_clust, time0, dt, PathOut, replica,struct):
 	"""
 	Generate a PDB file for the first structure inside each clusters. Save also the
@@ -123,6 +126,25 @@ def save_figure(name, fig_dir):
 	if do_save:
 		plt.savefig(fig_dir + name, bbox_inches='tight')
 
+def exportAvergaeStructure(aver_strucut, traj, PathOut):
+    with open(PathOut+"average.pdb", "w") as filout:
+        n_atoms = traj.n_atoms
+        for i in range(n_atoms):
+            atom = topology.atom(i)
+            #convert nm to angstrom
+            x = aver_coord[i][0]*10
+            y = aver_coord[i][1]*10
+            z = aver_coord[i][2]*10
+            #atom.index
+            #atom.name
+            #atom.n_bonds
+            #atom.residue.name
+            resid = str(atom.residue)[3:]
+            resn = str(atom.residue)[:3]
+            filout.write("ATOM  {:5d} {:^4s} {:3s} A{:4d} \
+    {:8.3f}{:8.3f}{:8.3f}{:6.2f}      {:>2s}  \n".format(\
+                         atom.index+1, atom.name, resn, int(resid),\
+                         x, y,z, 1.00, atom.name[0] ) )
 
 #################################
 #			Main				#
@@ -138,6 +160,10 @@ if __name__ == "__main__":
     help='tpr file: .tpr')
     parser.add_argument('-o', action="store", dest="o", type=str,
     help='folder where the output are saved', default="./free_energy_map/")
+    parser.add_argument('-kmeans', action="store", dest="kmeans", type=int,
+    help='Number of clusters', default=10)
+    parser.add_argument('-stru4RMSD', action="store", dest="stru4RMSD", type=str,
+    help='Number of clusters', default=None)
     args = parser.parse_args()
 
 
@@ -148,35 +174,46 @@ if __name__ == "__main__":
     PathOut = args.o
 
     cleanFolder(PathOut)
-    cmd= gmx+" check -f "+replica
-    print(cmd)
-    p = Popen(cmd, stdout=PIPE, stderr=PIPE, shell=True)
-    for line in p.stderr:  
-        line = line.decode("utf-8")
-        print(line)
-        if line[:4] == "Step":
-            tot_frame = int(line.split()[1])
-            dt = int(line.split()[2])
-
-
-    #print "Time simulation {0} ps".format(tot_frame*dt)
-    cmd =gmx+" trjconv -f "+replica+" -s "+tpr+" -center yes -b "+str(int(tot_frame*dt/10.0))+" -o "+PathOut+"ex_md.xtc"
-    Popen("echo \"4 0\" | "+cmd, shell=True).wait()
-    replica = PathOut+"ex_md.xtc"
-
 
     traj = md.load(replica, top=struct)
     topology = traj.topology
+    n_frames = traj.n_frames
+        #center coordinates to the origin
+    traj.center_coordinates()
+    print("Simulation has {0} frames and length is {1} ps".format(n_frames, traj.time[-1]))
+    print("Remove the first 10%")
+    traj[int(n_frames/10.0):].save_xtc(PathOut+"ex_md.xtc")
+    replica = PathOut+"ex_md.xtc"
+
+
+
+    replica=PathOut+"ex_md.xtc"
+    traj = md.load(replica, top=struct)
+    n_frames = traj.n_frames
+    n_atoms = traj.n_atoms
+
     #backbone's atoms indice
     bb = topology.select('name N or name CA or name C')
+    #Fit all structure's backbone to the first frame
+    traj.superpose(reference = traj[0], frame = 0, atom_indices = bb)
+    topology = traj.topology
 
+        #Compute radius of gyration
     gyrateArray = md.compute_rg(traj)
-
-    cmd = gmx+" covar -f "+replica+" -s "+tpr+" -av "+PathOut+"average.gro"
-    #Structure moyenne obtenu sur la traj ex_md
-    Popen("echo \"4 0\" | "+cmd, shell=True).wait()
-    average_struct = md.load(PathOut+"average.gro")
-    rms = md.rmsd(traj, average_struct, atom_indices=bb)*10
+        #Compute average structure if there is no reference structure for the RMSD
+    if args.stru4RMSD is None:
+        cmd = gmx+" covar -f "+replica+" -s "+tpr+" -av "+PathOut+"average.gro"
+        #Structure moyenne obtenu sur la traj ex_md
+        Popen("echo \"4 0\" | "+cmd, shell=True).wait()
+        ref_struct = md.load(PathOut+"average.gro")
+        rms = md.rmsd(traj, ref_struct, atom_indices=bb)*10
+    else:
+        ref_struct = md.load(args.stru4RMSD)
+        topology2 = ref_struct.topology
+        bb2 = topology2.select('name N or name CA or name C')
+        print("Superpose atoms:\n{0}\nwith\n{0}\n".format(bb,bb2))
+        rms = md.rmsd(traj, ref_struct, atom_indices=bb)*10
+        print("There is {0:.2f} %of conformation with a RMSD below 2.0 A".format(len(np.where(rms<2.0)[0])/len(rms)*100.0))
     #Convert in A
     gyrateArray = gyrateArray*10
     peptide_name = "peptide"
@@ -201,7 +238,7 @@ if __name__ == "__main__":
     save_figure('free'+peptide_name+'.pdf',PathOut+"/")	#Par défaut, image au format pdf
 
     #Mise en place du k-means
-    n_clusters = 10
+    n_clusters = args.kmeans
     Y = np.vstack((gyrateArray, rms))
     X = np.transpose(Y)
     clustering = coor.cluster_kmeans(X,k=n_clusters, max_iter=100)
@@ -218,4 +255,4 @@ if __name__ == "__main__":
         plt.text(cc_x[i], cc_y[i], str(i+1), color='grey', fontsize=12)
 
     save_figure('free'+peptide_name+'_clusters.pdf',PathOut)
-    compute_effectif_cluster(ind_clust, int(tot_frame*dt/10.0), dt, PathOut, PathOut+"ex_md.xtc", struct)
+    compute_effectif_cluster(ind_clust, int(traj.time[0]), int(traj.timestep), PathOut, PathOut+"ex_md.xtc", struct)
