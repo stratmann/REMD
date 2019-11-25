@@ -215,7 +215,7 @@ def ParseCA(pdb):
     return str(cpt)
 
 
-def ChangeChirality(pdb, residues, tleap, outputs="./", subfold="./"):
+def ChangeChirality(pdb, residues, tleap, outputs="./", subfold="./", cyclic=False, seq=0):
     """
     Create a tleap script to modify the chirality ofselected residues
     /!\ Proline chirality is not modify
@@ -234,6 +234,8 @@ def ChangeChirality(pdb, residues, tleap, outputs="./", subfold="./"):
         filin.write("\nset default PBradii bondi")
         filin.write("\nclearpdbresmap")
         filin.write("\nmol = loadpdb "+pdb)
+        if cyclic:
+            filin.write("\nbond mol.1.N mol."+str(len(seq))+".C")
         for i in residues:
             filin.write("\nselect mol."+str(i)+".CA")
         filin.write("\nflip mol")

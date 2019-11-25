@@ -137,9 +137,9 @@ if arg.s is not None:
                 if newfolder[i].islower() and newfolder[i].islower() != "p":
                     #proline break cyclic peptide
                     ind.append(i+1) #first residue is 1 in amber
-                    #print("D-Pro in position {0}".format(i+1))
+                    print("{0} in position {1}".format(newfolder[i],i+1))
                 if len(ind) > 0:
-                    ChangeChirality(pdb, ind, leap, outputs, subfold)
+                    ChangeChirality(pdb, ind, leap, outputs, subfold, arg.cyclic, newfolder)
             #Replace amino acid to D-proline
             for i in range(len(newfolder)):
                 if newfolder[i].islower() and newfolder[i].islower() == "p":
