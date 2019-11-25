@@ -131,13 +131,15 @@ if arg.s is not None:
             ind = [] #position of the D- amino acid
             #convert L- amino acid to D- amino acid
             #Except proline (they are not convert to D form)
+            cmd = gmx+" editconf -f "+subfold+pdb+" -resnr 1 -o "+subfold+pdb
+            Popen(cmd, shell=True).wait()
             for i in range(len(newfolder)):
                 if newfolder[i].islower() and newfolder[i].islower() != "p":
                     #proline break cyclic peptide
                     ind.append(i+1) #first residue is 1 in amber
-            cmd = gmx+" editconf -f "+subfold+pdb+" -resnr 1 -o "+subfold+pdb
-            Popen(cmd, shell=True).wait()
-            ChangeChirality(pdb, ind, leap, outputs, subfold)
+                    #print("D-Pro in position {0}".format(i+1))
+                if len(ind) > 0:
+                    ChangeChirality(pdb, ind, leap, outputs, subfold)
             #Replace amino acid to D-proline
             for i in range(len(newfolder)):
                 if newfolder[i].islower() and newfolder[i].islower() == "p":
