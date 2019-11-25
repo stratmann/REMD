@@ -132,7 +132,8 @@ if arg.s is not None:
             #convert L- amino acid to D- amino acid
             #Except proline (they are not convert to D form)
             for i in range(len(newfolder)):
-                if newfolder[i].islower():
+                if newfolder[i].islower() and newfolder[i].islower() != "p":
+                    #proline break cyclic peptide
                     ind.append(i+1) #first residue is 1 in amber
             cmd = gmx+" editconf -f "+subfold+pdb+" -resnr 1 -o "+subfold+pdb
             Popen(cmd, shell=True).wait()
