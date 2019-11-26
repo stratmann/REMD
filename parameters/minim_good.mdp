@@ -1,7 +1,7 @@
 ; minim.mdp - used as input into grompp to generate em.tpr
 ; Parameters describing what to do, when to stop and what to save
 integrator = cg ; Algorithm (cg = conjugate gradient minimization)
-emstep	= 0.01 	; Energy step size [nm]
+emstep	= 0.001 	; Energy step size [nm]
 emtol	= 10	; Convergence criterion (maximal force is
 	;smaller than this value (kJ/mol/nm)
 nstcgsteep	= 500	; frequency of performing 1 steepest descent
