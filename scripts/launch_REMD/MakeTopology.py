@@ -8,6 +8,8 @@ import re
 import time
 import os
 import Bio.PDB
+import numpy as np
+
 
 RgFlagCat = re.compile('^\[ [a-z]+ \]')
 RgFlagDefault = re.compile('\[ defaults \]')
@@ -147,7 +149,7 @@ def ChangePDB(filin, new_aa, Pro2Swap):
     with open(filin, "w") as filout:
     #with open("test.pdb", "w") as filout:
         filout.write(newPDB)
-    print(newPDB)
+    #print(newPDB)
 
 
 
@@ -215,7 +217,7 @@ def ParseCA(pdb):
     return str(cpt)
 
 
-def ChangeChirality(pdb, residues, tleap, outputs="./", subfold="./", cyclic=False, seq=0):
+def ChangeChirality(pdb, residues, tleap, acpype, outputs="./", subfold="./", cyclic=False, seq=0):
     """
     Create a tleap script to modify the chirality ofselected residues
     /!\ Proline chirality is not modify
@@ -239,11 +241,22 @@ def ChangeChirality(pdb, residues, tleap, outputs="./", subfold="./", cyclic=Fal
         for i in residues:
             filin.write("\nselect mol."+str(i)+".CA")
         filin.write("\nflip mol")
+        filin.write("\nsaveamberparm mol pept_amber.prmtop pept_amber.inpcrd")
         filin.write("\nsavepdb mol "+pdb)
         filin.write("\nquit")
         print("generate amber's topology")
     Popen("tleap -f chirality.leap", shell=True).wait()
+    Popen(acpype+" -x pept_amber.inpcrd -p pept_amber.prmtop", shell=True).wait()
+    NewFile = ReadTopFile("pept_amber_GMX.top")
+    WriteNewFile("pept_amber_GMX.top", NewFile)
+    Popen("rm pept_amber.inpcrd pept_amber.prmtop pept_amber_GMX.top ", shell=True).wait()
+    Popen("rm pept-H.pdb pept-good.pdb pept_amber.pdb", shell=True).wait()
+    if CorrectFirstRes("pept_amber_GMX.gro"):
+            CorrectDihedral("pept_amber_GMX_corrected.top")
+    Popen("mv pept_amber_GMX.gro peptide.gro", shell=True).wait()
+    Popen("mv pept_amber_GMX_corrected.top peptide.top", shell=True).wait()
     os.chdir(outputs)
+    return "peptide.top"
 
 def removeH(structure):
     newPDB =""
@@ -353,7 +366,8 @@ def makeTopology(structure, peptide, gmx, tleap, acpype, forcefield, output = ".
         NewFile = ReadTopFile("pept_amber_GMX.top")
         WriteNewFile("pept_amber_GMX.top", NewFile)
         if debug is False:
-            Popen("rm pept_amber.inpcrd pept_amber.prmtop pept_amber_GMX.top pept-H.pdb pept-good.pdb pept_amber.pdb", shell=True).wait()
+            Popen("rm pept_amber.inpcrd pept_amber.prmtop pept_amber_GMX.top ", shell=True).wait()
+            Popen("rm pept-H.pdb pept-good.pdb pept_amber.pdb", shell=True).wait()
         if CorrectFirstRes("pept_amber_GMX.gro"):
             CorrectDihedral("pept_amber_GMX_corrected.top")
         Popen("mv pept_amber_GMX.gro peptide.gro", shell=True).wait()

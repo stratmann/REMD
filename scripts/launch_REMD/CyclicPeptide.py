@@ -92,8 +92,10 @@ def MakePeptideGreatAgain(scwrl, seq, cyclicPept, output="./"):
     lenPeptide = str(len(seq.split("/")[-1][:-4]))
     if cyclicPept is True:
         refbackbone ="/home/REMD/src/scwrl3_lin/CyclicPeptide/"+lenPeptide+".pdb"
+        #refbackbone = "/home/jaysen/Bureau/residue_D_L/src/BackboneReference/CyclicPeptide/"+lenPeptide+".pdb"
     else:
         refbackbone ="/home/REMD/src/scwrl3_lin/LinearPeptide/"+lenPeptide+".pdb"
+        #refbackbone = "/home/jaysen/Bureau/residue_D_L/src/BackboneReference/LinearPeptide/"+lenPeptide+".pdb"
     peptide = seq.split("/")[-1][:-4]
     #tmp_pept = seq.replace("x","c").replace("X","C")
     Popen(scwrl+" -i "+refbackbone+" -s "+seq+" -o "+output+"ref"+peptide+".pdb", shell=True).wait()

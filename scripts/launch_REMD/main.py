@@ -8,19 +8,24 @@ import sys
 import re
 from CyclicPeptide import *
 from MakeTopology import *
+#from chirality import *
 import random
+import numpy as np
 
 gmx="/usr/local/gromacs/bin/gmx_mpi"
 #path for the force field
 leap="/amber18/dat/leap/cmd/oldff/leaprc."
 acpype="/home/REMD/src/acpype/acpype.py"
 scwrl="/home/REMD/src/scwrl3_lin/./scwrl3"
+Dproline="/home/REMD/src/scwrl3_lin/patron_D-pro.pdb"
 
-#gmx="/commun/gromacs/512/bin/gmx"
+#gmx="/home/jaysen/gromacs-5.1.5/build/bin/gmx_mpi"
 #path for the force field
-#leap="/home/jaysen/amber14/dat/leap/cmd/oldff/leaprc.ff96"
-#acpype="/bigdata/jaysen/Rapport_MAUD/Scripts/acpype/acpype.py"
-#scwrl="/bigdata/jaysen/these/github/Docker/REMD/src/scwrl3_lin/./scwrl3"
+#leap="/home/jaysen/amber18/dat/leap/cmd/oldff/leaprc."
+#acpype="/home/jaysen/acpype-0.1.1/acpype/scripts/acpype.py"
+#scwrl="/home/jaysen/scwrl3_lin/./scwrl3"
+#Dproline="/home/jaysen/Bureau/residue_D_L/src/patron_D-pro.pdb"
+
 
 leapFF={"amber96":"ff96", "amber99sb":"ff99SB", "amber99sb-ildn":"ff99SBildn", "amber03":"ff03"}
 
@@ -34,9 +39,13 @@ def minimization(path="./"):
     Popen("cp /home/REMD/src/minim_good.mdp "+path+"mini1", shell=True).wait()
     Popen("cp /home/REMD/src/Equil.mdp "+path+"mini2", shell=True).wait()
     Popen("cp /home/REMD/src/md_good.mdp "+path+"REMD", shell=True).wait()
+    #Popen("cp /home/jaysen/Bureau/residue_D_L/parameters/minim_good.mdp "+path+"mini1", shell=True).wait()
+    #Popen("cp /home/jaysen/Bureau/residue_D_L/parameters/Equil.mdp "+path+"mini2", shell=True).wait()
+    #Popen("cp /home/jaysen/Bureau/residue_D_L/parameters/md_good.mdp "+path+"REMD", shell=True).wait()
     Popen(gmx+" editconf -f "+path+"mini1/peptide.gro -o "+path+"mini1/center_mini_systeme.gro  -bt cubic -d 1.0 -c yes", shell=True).wait()
     Popen(gmx+" grompp -f "+path+"mini1/minim_good.mdp -p "+path+"mini1/*.top -c "+path+"mini1/center_mini_systeme.gro -o "+path+"mini1/mini1.tpr", shell=True).wait()
     Popen(gmx+" mdrun -deffnm "+path+"mini1/mini1", shell=True).wait()
+    Popen(gmx+" editconf -f "+path+"mini1/mini1.gro -o "+path+"mini1/mini1.pdb", shell=True).wait()
     Popen("cp "+path+"mini1/mini1.gro "+path+"mini2/mini1.gro", shell=True).wait()
     Popen("cp "+path+"mini1/*.top "+path+"mini2/", shell=True).wait()
     Popen("cp "+path+"mini1/*.itp "+path+"mini2/", shell=True).wait()
@@ -126,6 +135,10 @@ if arg.s is not None:
         subfold = outputs+newfolder+"/"
         os.makedirs(subfold)
         Popen("mv "+outputs+pdb+" "+subfold, shell=True).wait()
+        makeTopology(pdb, arg.cyclic, gmx, leap, acpype, "amber96", subfold)
+        minimization(subfold)
+        Popen("mv "+subfold+"mini1/mini1.pdb "+subfold+pdb, shell=True).wait()
+        Popen("rm -rf "+subfold+"mini* "+subfold+"REMD "+subfold+"peptide.gro "+subfold+"peptide.top", shell=True).wait()
         #Check if there is some D- amino acid
         if newfolder.isupper() is not True:
             ind = [] #position of the D- amino acid
@@ -133,22 +146,26 @@ if arg.s is not None:
             #Except proline (they are not convert to D form)
             cmd = gmx+" editconf -f "+subfold+pdb+" -resnr 1 -o "+subfold+pdb
             Popen(cmd, shell=True).wait()
+            #Replace amino acid to D-proline
             for i in range(len(newfolder)):
-                if newfolder[i].islower() and newfolder[i].islower() != "p":
+                if newfolder[i].islower() and newfolder[i] == "p":
+                    print("D-Pro in position {0}".format(i+1))
+                    #PutThatDpro(subfold+pdb, "/home/REMD/src/scwrl3_lin/patron_D-pro.pdb", int(i+1))
+                    PutThatDpro(subfold+pdb, Dproline, int(i+1))
+                    #minimization(subfold)
+            for i in range(len(newfolder)):
+                if newfolder[i].islower() and newfolder[i] != "p":
                     #proline break cyclic peptide
                     ind.append(i+1) #first residue is 1 in amber
                     print("{0} in position {1}".format(newfolder[i],i+1))
-                if len(ind) > 0:
-                    ChangeChirality(pdb, ind, leap, outputs, subfold, arg.cyclic, newfolder)
-            #Replace amino acid to D-proline
-            for i in range(len(newfolder)):
-                if newfolder[i].islower() and newfolder[i].islower() == "p":
-                    print("D-Pro in position {0}".format(i+1))
-                    PutThatDpro(subfold+pdb, "/home/REMD/src/scwrl3_lin/patron_D-pro.pdb", int(i+1))
+            if len(ind) > 0:
+                topology = ChangeChirality(pdb, ind, leap, acpype, outputs, subfold, arg.cyclic, newfolder)
+                #makeTopology(subfold+pdb, arg.cyclic, gmx, leap, acpype, "amber96", subfold)
         if pdb[-3:] != "pdb":
                 print("No PDB found")
                 sys.exit(0)
         if topology is None:
+                print("There is no D-amino acid, make topology")
                 makeTopology(pdb, arg.cyclic, gmx, leap, acpype, "amber96", subfold)
         if arg.temp is None:
             print("No temperature given...\n")
@@ -158,6 +175,10 @@ if arg.s is not None:
             print("Need more than 1 temperature to do REMD\n")
             continue
         refTemp = arg.temp.split()
+        minimization(subfold) #to delete in the final version
+        #print("Minimization done")
+        equilibration(subfold)
+        #continue #delete it
         lunch_REMD(subfold, refTemp)
         lunch_analyze(subfold)
 else:
