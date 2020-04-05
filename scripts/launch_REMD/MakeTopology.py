@@ -316,6 +316,72 @@ def cyxInPDB(structure):
     return cyx
 
 
+def tleapCaped(tleap, structure):
+    with open("linear.leap", "w") as filin:
+        filin.write("source "+tleap)
+        filin.write("\nset default PBradii bondi")
+        filin.write("\nclearpdbresmap")
+        filin.write("\nmol = loadpdb "+structure)
+        filin.write("\nsavepdb mol peptide.pdb")
+        filin.write("\nquit")
+    print("generate amber's topology")
+
+
+def tmp_caped(newPDB, CH3, OC1, OC2):
+    with open("tmp_caped.pdb", "w") as filout:
+        lines = newPDB.split("\n")
+        for i in range(len(lines)):
+            if i == CH3[0]-2:
+                #print(CH3[1])
+                filout.write("ATOM      0  CH3 ACE{0}".format(CH3[1][21:]))
+                #print(lines[i])
+            elif i == OC1[0]-1:
+                filout.write("{0}O  {1}".format(OC1[1][:13], OC1[1][16:]))
+                #print(OC1[1])
+                continue
+            elif i == OC2[0]-1:
+                #print("NME")
+                filout.write("ATOM      0  N   NME{0}".format(OC2[1][20:]))
+                continue
+            else:
+                filout.write(lines[i]+"\n")
+
+
+
+def removeH4linear(tleap, structure):
+    newPDB =""
+    CH3 = []
+    OC1 = []
+    OC2 = []
+    flag = True
+    cpt_line = 0
+    with open(structure, "r") as pdb:
+        for line in pdb:
+            if line[12:16].find("H1") >= 0 and flag is True:
+                CH3 = [cpt_line, line]
+                cpt_line += 1
+                flag = False
+                print(line)
+            if line.split()[0] != "ATOM":
+                newPDB += line
+                cpt_line += 1
+            elif line[12:16].find("H") >= 0:
+                #print(line[12:16])
+                continue
+            else:
+                if line[12:16].find("OC1") >= 0:
+                    OC1 = [cpt_line, line]
+                elif line[12:16].find("OC2") >= 0:
+                    OC2 = [cpt_line ,line]
+                newPDB += line
+                cpt_line += 1
+    tmp_caped(newPDB, CH3, OC1, OC2)
+    tleapCaped(tleap, "tmp_caped.pdb")
+    Popen("tleap -f linear.leap", shell=True).wait()
+    #Remove TER to maintain peptide's integrity
+    Popen("sed -i \"/TER*/d\" peptide.pdb", shell=True).wait()
+
+
 def makeTopology(structure, peptide, gmx, tleap, acpype, forcefield, output = "./", debug = False):
     """
     Generate topopoly files for gromacs from intial structure
@@ -344,8 +410,14 @@ def makeTopology(structure, peptide, gmx, tleap, acpype, forcefield, output = ".
         #if not. Generate topology files with gromacs
         else:
             cmd = gmx+" pdb2gmx -p peptide.top -ignh yes -ff "+forcefield+" -water none \
--o peptide.gro -ter yes -f "+structure
+-o "+structure+" -f "+structure
+            #Popen("rm *.gro peptide.top *#", shell=True).wait()
             Popen(cmd, shell=True).wait()
+            removeH4linear(tleap, structure)
+            cmd = gmx+" pdb2gmx -p peptide.top -ignh yes -ff "+forcefield+" -water none \
+-o peptide.gro -f peptide.pdb"
+            Popen(cmd, shell=True).wait()
+            #Popen("rm peptide.pdb *# tmp_caped.pdb", shell=True).wait()
     else:
         print("Cyclic peptide")
         #First step we remove hhydrogen
